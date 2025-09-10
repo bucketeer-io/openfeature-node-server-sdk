@@ -1,51 +1,174 @@
 import {
-  Hook,
-  Provider,
+  ErrorCode,
   EvaluationContext,
-  ResolutionDetails,
-  Logger,
+  Hook,
+  InvalidContextError,
   JsonValue,
+  Logger,
+  OpenFeatureEventEmitter,
+  Provider,
+  ProviderFatalError,
+  ProviderNotReadyError,
+  ResolutionDetails,
+  ServerProviderEvents,
+  StandardResolutionReasons,
 } from '@openfeature/server-sdk';
+
+import {
+  BKTConfig,
+  Bucketeer,
+  defineBKTConfig,
+  initializeBKTClient,
+} from 'bkt-node-server-sdk';
+
+import { SDK_VERSION } from './version';
+import { evaluationContextToBKTUser } from './EvaluationContext';
+import {
+  toResolutionDetails,
+  toResolutionDetailsJsonValue,
+} from './BKTEvaluationDetailExt';
+
+const SOURCE_ID_OPEN_FEATURE_NODE = 104;
 
 // implement the provider interface
 export class BuckeeterProvider implements Provider {
-  resolveBooleanEvaluation(
+  private config: BKTConfig;
+  private client?: Bucketeer;
+
+  constructor(config: BKTConfig) {
+    const overrideConfig = defineBKTConfig({
+      ...config,
+      wrapperSdkVersion: SDK_VERSION,
+      wrapperSdkSourceId: SOURCE_ID_OPEN_FEATURE_NODE,
+    });
+    this.config = overrideConfig;
+  }
+
+  async resolveBooleanEvaluation(
     _flagKey: string,
     _defaultValue: boolean,
     _context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<boolean>> {
-    throw new Error('Method not implemented.');
+    const client = this.requiredBKTClient();
+    const user = evaluationContextToBKTUser(_context);
+    const evaluationDetails = await client.booleanVariationDetails(
+      user,
+      _flagKey,
+      _defaultValue,
+    );
+    return toResolutionDetails(evaluationDetails);
   }
-  resolveStringEvaluation(
+
+  async resolveStringEvaluation(
     _flagKey: string,
     _defaultValue: string,
     _context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<string>> {
-    throw new Error('Method not implemented.');
+    const client = this.requiredBKTClient();
+    const user = evaluationContextToBKTUser(_context);
+    const evaluationDetails = await client.stringVariationDetails(
+      user,
+      _flagKey,
+      _defaultValue,
+    );
+    return toResolutionDetails(evaluationDetails);
   }
-  resolveNumberEvaluation(
+
+  async resolveNumberEvaluation(
     _flagKey: string,
     _defaultValue: number,
     _context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<number>> {
-    throw new Error('Method not implemented.');
+    const client = this.requiredBKTClient();
+    const user = evaluationContextToBKTUser(_context);
+    const evaluationDetails = await client.numberVariationDetails(
+      user,
+      _flagKey,
+      _defaultValue,
+    );
+    return toResolutionDetails(evaluationDetails);
   }
-  resolveObjectEvaluation<T extends JsonValue>(
+  
+  async resolveObjectEvaluation<T extends JsonValue>(
     _flagKey: string,
     _defaultValue: T,
     _context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<T>> {
-    throw new Error('Method not implemented.');
+    const client = this.requiredBKTClient();
+    const user = evaluationContextToBKTUser(_context);
+    const evaluationDetails = await client.objectVariationDetails(
+      user,
+      _flagKey,
+      _defaultValue,
+    );
+    if (typeof evaluationDetails.variationValue === 'object') {
+      return toResolutionDetailsJsonValue(evaluationDetails);
+    }
+    return wrongTypeResult(
+      _defaultValue,
+      `Expected object but got ${typeof evaluationDetails.variationValue}`,
+    );
   }
+
+  async initialize(context?: EvaluationContext) {
+    if (!context) {
+      throw new InvalidContextError('context is required');
+    }
+    const config = this.config;
+
+    try {
+      const client = initializeBKTClient(config);
+      await client.waitForInitialization({ timeout: 30_000 });
+      this.events.emit(ServerProviderEvents.Ready);
+    } catch (error) {
+      if (error instanceof Error && error.name === 'TimeoutError') {
+        // TimeoutError but The BKTClient SDK has been initialized
+        this.events.emit(ServerProviderEvents.Ready);
+      } else {
+        this.events.emit(ServerProviderEvents.Error);
+        throw new ProviderFatalError(
+          `Failed to initialize Bucketeer client: ${error}`,
+        );
+      }
+    }
+  }
+
+  async onClose() {
+    this.client?.destroy();
+  }
+
+  requiredBKTClient(): Bucketeer {
+    const client = this.client;
+    if (!client) {
+      this.events.emit(ServerProviderEvents.Error);
+      throw new ProviderNotReadyError('Bucketeer client is not initialized');
+    }
+    return client;
+  }
+
+  readonly events = new OpenFeatureEventEmitter();
+
   // Adds runtime validation that the provider is used with the expected SDK
   public readonly runsOn = 'server';
   readonly metadata = {
-    name: 'My Provider',
+    name: 'Buckeeter Provider',
   } as const;
   // Optional provider managed hooks
   hooks?: Hook[];
+}
+
+export function wrongTypeResult<T>(
+  value: T,
+  errorMessage: string,
+): ResolutionDetails<T> {
+  return {
+    value,
+    reason: StandardResolutionReasons.ERROR,
+    errorCode: ErrorCode.TYPE_MISMATCH,
+    errorMessage,
+  };
 }
