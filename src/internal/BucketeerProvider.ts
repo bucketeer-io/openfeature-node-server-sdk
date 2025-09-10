@@ -45,71 +45,71 @@ export class BuckeeterProvider implements Provider {
   }
 
   async resolveBooleanEvaluation(
-    _flagKey: string,
-    _defaultValue: boolean,
-    _context: EvaluationContext,
+    flagKey: string,
+    defaultValue: boolean,
+    context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<boolean>> {
     const client = this.requiredBKTClient();
-    const user = evaluationContextToBKTUser(_context);
+    const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.booleanVariationDetails(
       user,
-      _flagKey,
-      _defaultValue,
+      flagKey,
+      defaultValue,
     );
     return toResolutionDetails(evaluationDetails);
   }
 
   async resolveStringEvaluation(
-    _flagKey: string,
-    _defaultValue: string,
-    _context: EvaluationContext,
+    flagKey: string,
+    defaultValue: string,
+    context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<string>> {
     const client = this.requiredBKTClient();
-    const user = evaluationContextToBKTUser(_context);
+    const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.stringVariationDetails(
       user,
-      _flagKey,
-      _defaultValue,
+      flagKey,
+      defaultValue,
     );
     return toResolutionDetails(evaluationDetails);
   }
 
   async resolveNumberEvaluation(
-    _flagKey: string,
-    _defaultValue: number,
-    _context: EvaluationContext,
+    flagKey: string,
+    defaultValue: number,
+    context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<number>> {
     const client = this.requiredBKTClient();
-    const user = evaluationContextToBKTUser(_context);
+    const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.numberVariationDetails(
       user,
-      _flagKey,
-      _defaultValue,
+      flagKey,
+      defaultValue,
     );
     return toResolutionDetails(evaluationDetails);
   }
-  
+
   async resolveObjectEvaluation<T extends JsonValue>(
-    _flagKey: string,
-    _defaultValue: T,
-    _context: EvaluationContext,
+    flagKey: string,
+    defaultValue: T,
+    context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<T>> {
     const client = this.requiredBKTClient();
-    const user = evaluationContextToBKTUser(_context);
+    const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(
       user,
-      _flagKey,
-      _defaultValue,
+      flagKey,
+      defaultValue,
     );
     if (typeof evaluationDetails.variationValue === 'object') {
       return toResolutionDetailsJsonValue(evaluationDetails);
     }
     return wrongTypeResult(
-      _defaultValue,
+      defaultValue,
       `Expected object but got ${typeof evaluationDetails.variationValue}`,
     );
   }
