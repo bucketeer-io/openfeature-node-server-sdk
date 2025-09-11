@@ -7,7 +7,4 @@
       "@types/node",
     ]
   },
-  "exclude": [
-
-  ],
 }
