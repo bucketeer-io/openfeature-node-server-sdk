@@ -140,6 +140,7 @@ export class BuckeeterProvider implements Provider {
 
   async onClose() {
     this.client?.destroy();
+    this.client = undefined;
   }
 
   requiredBKTClient(): Bucketeer {
