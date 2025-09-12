@@ -30,8 +30,14 @@ export class BuckeeterProvider implements Provider {
   private initializationTimeoutMs: number;
 
   constructor(config: BKTConfig, options?: { initializationTimeoutMs?: number }) {
+    // Use defineBKTConfig on the user-provided config to fill in defaults. 
+    // If BKTConfig is not created by defineConfig(), 
+    // it will quickly throw an error if apiKey, apiEndpoint, or featureTag are missing. 
+    // This gives faster feedback to the app developer.
     const overrideConfig = defineBKTConfig({
       ...config,
+      // Add wrapper SDK version and wrapper source ID to the config
+      // Override any user-provided values for these fields
       wrapperSdkVersion: SDK_VERSION,
       wrapperSdkSourceId: SOURCE_ID_OPEN_FEATURE_NODE,
     });
