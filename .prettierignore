@@ -1,1 +1,10 @@
 **/*.d.ts
+.github/
+node_modules/
+dist/
+build/
+coverage/
+example/**/node_modules/
+example/**/dist/
+example/**/build/
+example/**/coverage/
