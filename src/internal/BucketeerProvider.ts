@@ -14,19 +14,11 @@ import {
   StandardResolutionReasons,
 } from '@openfeature/server-sdk';
 
-import {
-  BKTConfig,
-  Bucketeer,
-  defineBKTConfig,
-  initializeBKTClient,
-} from 'bkt-node-server-sdk';
+import { BKTConfig, Bucketeer, defineBKTConfig, initializeBKTClient } from 'bkt-node-server-sdk';
 
 import { SDK_VERSION } from './version';
 import { evaluationContextToBKTUser } from './EvaluationContext';
-import {
-  toResolutionDetails,
-  toResolutionDetailsJsonValue,
-} from './BKTEvaluationDetailExt';
+import { toResolutionDetails, toResolutionDetailsJsonValue } from './BKTEvaluationDetailExt';
 
 export const SOURCE_ID_OPEN_FEATURE_NODE = 104;
 export const DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS = 60_000;
@@ -35,14 +27,17 @@ export const DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS = 60_000;
 export class BuckeeterProvider implements Provider {
   private config: BKTConfig;
   private client?: Bucketeer;
+  private initializationTimeoutMs: number;
 
-  constructor(config: BKTConfig) {
+  constructor(config: BKTConfig, options?: { initializationTimeoutMs?: number }) {
     const overrideConfig = defineBKTConfig({
       ...config,
       wrapperSdkVersion: SDK_VERSION,
       wrapperSdkSourceId: SOURCE_ID_OPEN_FEATURE_NODE,
     });
     this.config = overrideConfig;
+    this.initializationTimeoutMs =
+      options?.initializationTimeoutMs ?? DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS;
   }
 
   async resolveBooleanEvaluation(
@@ -53,11 +48,7 @@ export class BuckeeterProvider implements Provider {
   ): Promise<ResolutionDetails<boolean>> {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
-    const evaluationDetails = await client.booleanVariationDetails(
-      user,
-      flagKey,
-      defaultValue,
-    );
+    const evaluationDetails = await client.booleanVariationDetails(user, flagKey, defaultValue);
     return toResolutionDetails(evaluationDetails);
   }
 
@@ -69,11 +60,7 @@ export class BuckeeterProvider implements Provider {
   ): Promise<ResolutionDetails<string>> {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
-    const evaluationDetails = await client.stringVariationDetails(
-      user,
-      flagKey,
-      defaultValue,
-    );
+    const evaluationDetails = await client.stringVariationDetails(user, flagKey, defaultValue);
     return toResolutionDetails(evaluationDetails);
   }
 
@@ -85,11 +72,7 @@ export class BuckeeterProvider implements Provider {
   ): Promise<ResolutionDetails<number>> {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
-    const evaluationDetails = await client.numberVariationDetails(
-      user,
-      flagKey,
-      defaultValue,
-    );
+    const evaluationDetails = await client.numberVariationDetails(user, flagKey, defaultValue);
     return toResolutionDetails(evaluationDetails);
   }
 
@@ -101,11 +84,7 @@ export class BuckeeterProvider implements Provider {
   ): Promise<ResolutionDetails<T>> {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
-    const evaluationDetails = await client.objectVariationDetails(
-      user,
-      flagKey,
-      defaultValue,
-    );
+    const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
     if (typeof evaluationDetails.variationValue === 'object') {
       return toResolutionDetailsJsonValue(evaluationDetails);
     }
@@ -123,8 +102,8 @@ export class BuckeeterProvider implements Provider {
 
     try {
       const client = initializeBKTClient(config);
-      await client.waitForInitialization({ timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS });
       this.client = client;
+      await client.waitForInitialization({ timeout: this.initializationTimeoutMs });
       this.events.emit(ServerProviderEvents.Ready);
     } catch (error) {
       if (error instanceof Error && error.name === 'TimeoutError') {
@@ -132,9 +111,7 @@ export class BuckeeterProvider implements Provider {
         this.events.emit(ServerProviderEvents.Ready);
       } else {
         this.events.emit(ServerProviderEvents.Error);
-        throw new ProviderFatalError(
-          `Failed to initialize Bucketeer client: ${error}`,
-        );
+        throw new ProviderFatalError(`Failed to initialize Bucketeer client: ${error}`);
       }
     }
   }
@@ -164,10 +141,7 @@ export class BuckeeterProvider implements Provider {
   hooks?: Hook[];
 }
 
-export function wrongTypeResult<T>(
-  value: T,
-  errorMessage: string,
-): ResolutionDetails<T> {
+export function wrongTypeResult<T>(value: T, errorMessage: string): ResolutionDetails<T> {
   return {
     value,
     reason: StandardResolutionReasons.ERROR,

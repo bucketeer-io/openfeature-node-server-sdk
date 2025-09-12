@@ -81,7 +81,7 @@ describe('BuckeeterProvider', () => {
     } as any;
 
     (initializeBKTClient as jest.Mock).mockReturnValue(mockClient);
-    provider = new BuckeeterProvider(mockConfig);
+    provider = new BuckeeterProvider(mockConfig, { initializationTimeoutMs: 5000});
   });
 
   describe('metadata', () => {
@@ -97,7 +97,7 @@ describe('BuckeeterProvider', () => {
       await provider.initialize(mockContext);
       expect(initializeBKTClient).toHaveBeenCalledWith(expect.objectContaining(expectedConfig));
       expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
-        timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
+        timeout: 5000,
       });
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Ready);
     });
@@ -108,8 +108,11 @@ describe('BuckeeterProvider', () => {
       });
       const emitSpy = jest.spyOn(provider.events, 'emit');
       await provider.initialize(mockContext);
-      expect(mockClient.waitForInitialization).toHaveBeenCalledWith({ timeout: 30_000 });
+      expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
+        timeout: 5000,
+      });
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Ready);
+      expect(provider['client']).toBe(mockClient);
     });
 
     it('should emit error and throw ProviderFatalError on initialization failure', async () => {
@@ -119,10 +122,19 @@ describe('BuckeeterProvider', () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       await expect(provider.initialize(mockContext)).rejects.toThrow(ProviderFatalError);
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Error);
+      expect(provider['client']).toBe(mockClient);
     });
 
     it('should throw InvalidContextError if context is not provided', async () => {
       await expect(provider.initialize(undefined as any)).rejects.toThrow(InvalidContextError);
+    });
+
+    it('should use default timeout if not provided in options', async () => {
+      provider = new BuckeeterProvider(mockConfig);
+      await provider.initialize(mockContext);
+      expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
+        timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
+      });
     });
   });
 
