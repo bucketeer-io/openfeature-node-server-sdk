@@ -3,5 +3,5 @@ module.exports = {
   testMatch: ['**/*.test.ts?(x)'],
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'js'],
-  collectCoverageFrom: ['src/**/*.ts']
+  collectCoverageFrom: ['src/**/*.ts'],
 };

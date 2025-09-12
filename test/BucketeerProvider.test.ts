@@ -21,7 +21,6 @@ import {
   StandardResolutionReasons,
   ServerProviderEvents,
   ResolutionDetails,
-  JsonValue,
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
 
@@ -74,10 +73,21 @@ describe('BuckeeterProvider', () => {
       objectVariationDetails: jest.fn(),
       waitForInitialization: jest.fn(),
       destroy: jest.fn(),
-    } as any;
+      getBoolVariation: jest.fn(),
+      getStringVariation: jest.fn(),
+      getNumberVariation: jest.fn(),
+      getJsonVariation: jest.fn(),
+      track: jest.fn(),
+      booleanVariation: jest.fn(),
+      stringVariation: jest.fn(),
+      numberVariation: jest.fn(),
+      objectVariation: jest.fn(),
+      getBuildInfo: jest.fn(),
+      // Add any other missing methods from Bucketeer interface as needed
+    };
 
     (initializeBKTClient as jest.Mock).mockReturnValue(mockClient);
-    provider = new BuckeeterProvider(mockConfig, { initializationTimeoutMs: 5000});
+    provider = new BuckeeterProvider(mockConfig, { initializationTimeoutMs: 5000 });
   });
 
   describe('metadata', () => {
@@ -122,7 +132,8 @@ describe('BuckeeterProvider', () => {
     });
 
     it('should throw InvalidContextError if context is not provided', async () => {
-      await expect(provider.initialize(undefined as any)).rejects.toThrow(InvalidContextError);
+      const undefinedContext: EvaluationContext = undefined as unknown as EvaluationContext;
+      await expect(provider.initialize(undefinedContext)).rejects.toThrow(InvalidContextError);
     });
 
     it('should use default timeout if not provided in options', async () => {
@@ -232,7 +243,7 @@ describe('BuckeeterProvider', () => {
         value: { key: 'value' },
         variant: 'object-variant',
         reason: 'CLIENT',
-      } satisfies ResolutionDetails<{}>);
+      } satisfies ResolutionDetails<object>);
     });
 
     it('should handle type mismatch in object evaluation', async () => {

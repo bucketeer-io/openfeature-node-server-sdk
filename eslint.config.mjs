@@ -4,8 +4,13 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default [
   {
+    ignores: ['dist/', '**/*.d.ts'],
+  },
+  // Spread recommended configs directly
+  ...tsEslint.configs.recommended,
+  eslintPluginPrettierRecommended,
+  {
     files: ['src/**/*.ts', 'test/**/*.ts'],
-    ignores: ['**/*.d.ts', 'src/google/', 'src/protoc-gen-openapiv2/', 'src/proto/'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -16,12 +21,26 @@ export default [
         node: true,
       },
     },
-    extends: {
-      ...tsEslint.configs.recommended,
-      eslintPluginPrettierRecommended,
-    },
     rules: {
-      quotes: ['error', 'single', { avoidEscape: true }],
+      'no-multiple-empty-lines': 'error',
+      quotes: ['error', 'single', { allowTemplateLiterals: true }],
+      // semi: ['error', 'never'],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/no-unused-expressions': [
+        'error',
+        {
+          allowShortCircuit: true,
+          allowTernary: true,
+        },
+      ],
     },
   },
 ];

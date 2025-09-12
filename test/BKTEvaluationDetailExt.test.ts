@@ -1,6 +1,9 @@
-import { toResolutionDetails, toResolutionDetailsJsonValue } from '../src/internal/BKTEvaluationDetailExt'
-import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk'
-import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk'
+import {
+  toResolutionDetails,
+  toResolutionDetailsJsonValue,
+} from '../src/internal/BKTEvaluationDetailExt';
+import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk';
+import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk';
 
 describe('toResolutionDetails', () => {
   it('should correctly transform BKTEvaluationDetails to ResolutionDetails', () => {
@@ -12,16 +15,16 @@ describe('toResolutionDetails', () => {
       variationValue: 'test-value',
       variationName: 'test-variant',
       reason: 'TARGET',
-    }
+    };
 
-    const result: ResolutionDetails<string> = toResolutionDetails(evaluationDetails)
+    const result: ResolutionDetails<string> = toResolutionDetails(evaluationDetails);
 
     expect(result).toEqual({
       value: 'test-value',
       variant: 'test-variant',
       reason: 'TARGET',
-    })
-  })
+    });
+  });
 
   it('should handle numeric variation values', () => {
     const evaluationDetails: BKTEvaluationDetails<number> = {
@@ -32,16 +35,16 @@ describe('toResolutionDetails', () => {
       variationValue: 42,
       variationName: 'test-variant',
       reason: 'RULE',
-    }
+    };
 
-    const result: ResolutionDetails<number> = toResolutionDetails(evaluationDetails)
+    const result: ResolutionDetails<number> = toResolutionDetails(evaluationDetails);
 
     expect(result).toEqual({
       value: 42,
       variant: 'test-variant',
       reason: 'RULE',
-    })
-  })
+    });
+  });
 
   it('should handle boolean variation values', () => {
     const evaluationDetails: BKTEvaluationDetails<boolean> = {
@@ -52,17 +55,17 @@ describe('toResolutionDetails', () => {
       variationValue: true,
       variationName: 'test-variant',
       reason: 'DEFAULT',
-    }
+    };
 
-    const result: ResolutionDetails<boolean> = toResolutionDetails(evaluationDetails)
+    const result: ResolutionDetails<boolean> = toResolutionDetails(evaluationDetails);
 
     expect(result).toEqual({
       value: true,
       variant: 'test-variant',
       reason: 'DEFAULT',
-    })
-  })
-})
+    });
+  });
+});
 
 describe('toResolutionDetailsJsonValue', () => {
   it('should correctly transform BKTEvaluationDetails to ResolutionDetails with string JsonValue', () => {
@@ -74,16 +77,16 @@ describe('toResolutionDetailsJsonValue', () => {
       variationValue: 'test-value',
       variationName: 'test-variant',
       reason: 'TARGET',
-    }
+    };
 
-    const result = toResolutionDetailsJsonValue<string>(evaluationDetails)
+    const result = toResolutionDetailsJsonValue<string>(evaluationDetails);
 
     expect(result).toEqual({
       value: 'test-value',
       variant: 'test-variant',
       reason: 'TARGET',
-    })
-  })
+    });
+  });
 
   it('should correctly transform BKTEvaluationDetails to ResolutionDetails with number JsonValue', () => {
     const evaluationDetails: BKTEvaluationDetails<number> = {
@@ -94,16 +97,16 @@ describe('toResolutionDetailsJsonValue', () => {
       variationValue: 42,
       variationName: 'test-variant',
       reason: 'RULE',
-    }
+    };
 
-    const result = toResolutionDetailsJsonValue<number>(evaluationDetails)
+    const result = toResolutionDetailsJsonValue<number>(evaluationDetails);
 
     expect(result).toEqual({
       value: 42,
       variant: 'test-variant',
       reason: 'RULE',
-    })
-  })
+    });
+  });
 
   it('should correctly transform BKTEvaluationDetails to ResolutionDetails with boolean JsonValue', () => {
     const evaluationDetails: BKTEvaluationDetails<boolean> = {
@@ -114,16 +117,16 @@ describe('toResolutionDetailsJsonValue', () => {
       variationValue: true,
       variationName: 'test-variant',
       reason: 'DEFAULT',
-    }
+    };
 
-    const result = toResolutionDetailsJsonValue<boolean>(evaluationDetails)
+    const result = toResolutionDetailsJsonValue<boolean>(evaluationDetails);
 
     expect(result).toEqual({
       value: true,
       variant: 'test-variant',
       reason: 'DEFAULT',
-    })
-  })
+    });
+  });
 
   it('should correctly transform BKTEvaluationDetails to ResolutionDetails with object JsonValue', () => {
     const evaluationDetails: BKTEvaluationDetails<BKTValue> = {
@@ -134,14 +137,14 @@ describe('toResolutionDetailsJsonValue', () => {
       variationValue: { key: 'value' },
       variationName: 'test-variant',
       reason: 'CLIENT',
-    }
+    };
 
-    const result = toResolutionDetailsJsonValue<JsonValue>(evaluationDetails)
+    const result = toResolutionDetailsJsonValue<JsonValue>(evaluationDetails);
 
     expect(result).toEqual({
       value: { key: 'value' },
       variant: 'test-variant',
       reason: 'CLIENT',
-    })
-  })
-})
+    });
+  });
+});

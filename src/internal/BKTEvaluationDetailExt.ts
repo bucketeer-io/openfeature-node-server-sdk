@@ -1,28 +1,27 @@
-import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk'
-import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk'
+import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk';
+import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk';
 
 function toResolutionDetails<T extends BKTValue>(
-  evaluationDetails: BKTEvaluationDetails<T>
+  evaluationDetails: BKTEvaluationDetails<T>,
 ): ResolutionDetails<T> {
-  const { variationValue, variationName, reason } = evaluationDetails
+  const { variationValue, variationName, reason } = evaluationDetails;
   return {
     value: variationValue as T,
     variant: variationName,
     reason: reason,
-  } satisfies ResolutionDetails<T>
+  } satisfies ResolutionDetails<T>;
 }
 
 function toResolutionDetailsJsonValue<T extends JsonValue>(
-  evaluationDetails: BKTEvaluationDetails<BKTValue>
+  evaluationDetails: BKTEvaluationDetails<BKTValue>,
 ): ResolutionDetails<T> {
-  const { variationValue, variationName, reason } = evaluationDetails
-  const jsonValue = variationValue as T
+  const { variationValue, variationName, reason } = evaluationDetails;
+  const jsonValue = variationValue as T;
   return {
     value: jsonValue,
     variant: variationName,
     reason: reason,
-  } satisfies ResolutionDetails<T>
+  } satisfies ResolutionDetails<T>;
 }
 
-export { toResolutionDetails, toResolutionDetailsJsonValue }
-
+export { toResolutionDetails, toResolutionDetailsJsonValue };
