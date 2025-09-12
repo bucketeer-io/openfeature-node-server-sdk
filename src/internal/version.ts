@@ -1,1 +1,3 @@
-export const SDK_VERSION: string = require('../../package.json').version;
+import * as packageJson from '../../package.json';
+
+export const SDK_VERSION: string = packageJson.version;
