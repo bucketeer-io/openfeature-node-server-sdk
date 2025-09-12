@@ -1,5 +1,5 @@
 import {
-  BuckeeterProvider,
+  BucketeerProvider,
   DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
   SOURCE_ID_OPEN_FEATURE_NODE,
   wrongTypeResult,
@@ -32,8 +32,8 @@ jest.mock('bkt-node-server-sdk', () => {
   };
 });
 
-describe('BuckeeterProvider', () => {
-  let provider: BuckeeterProvider;
+describe('BucketeerProvider', () => {
+  let provider: BucketeerProvider;
   let mockClient: jest.Mocked<Bucketeer>;
   let mockConfig: BKTConfig;
   let expectedConfig: BKTConfig;
@@ -87,12 +87,12 @@ describe('BuckeeterProvider', () => {
     };
 
     (initializeBKTClient as jest.Mock).mockReturnValue(mockClient);
-    provider = new BuckeeterProvider(mockConfig, { initializationTimeoutMs: 5000 });
+    provider = new BucketeerProvider(mockConfig, { initializationTimeoutMs: 5000 });
   });
 
   describe('metadata', () => {
     it('should have correct metadata', () => {
-      expect(provider.metadata.name).toBe('Buckeeter Provider');
+      expect(provider.metadata.name).toBe('Bucketeer Provider');
       expect(provider.runsOn).toBe('server');
     });
   });
@@ -137,7 +137,7 @@ describe('BuckeeterProvider', () => {
     });
 
     it('should use default timeout if not provided in options', async () => {
-      provider = new BuckeeterProvider(mockConfig);
+      provider = new BucketeerProvider(mockConfig);
       await provider.initialize(mockContext);
       expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
         timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,

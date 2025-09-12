@@ -24,7 +24,7 @@ export const SOURCE_ID_OPEN_FEATURE_NODE = 104;
 export const DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS = 60_000;
 
 // implement the provider interface
-export class BuckeeterProvider implements Provider {
+export class BucketeerProvider implements Provider {
   private config: BKTConfig;
   private client?: Bucketeer;
   private initializationTimeoutMs: number;
@@ -141,7 +141,7 @@ export class BuckeeterProvider implements Provider {
   // Adds runtime validation that the provider is used with the expected SDK
   public readonly runsOn = 'server';
   readonly metadata = {
-    name: 'Buckeeter Provider',
+    name: 'Bucketeer Provider',
   } as const;
   // Optional provider managed hooks
   hooks?: Hook[];
