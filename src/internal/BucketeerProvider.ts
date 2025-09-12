@@ -28,7 +28,7 @@ import {
   toResolutionDetailsJsonValue,
 } from './BKTEvaluationDetailExt';
 
-const SOURCE_ID_OPEN_FEATURE_NODE = 104;
+export const SOURCE_ID_OPEN_FEATURE_NODE = 104;
 
 // implement the provider interface
 export class BuckeeterProvider implements Provider {
