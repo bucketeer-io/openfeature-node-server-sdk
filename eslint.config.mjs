@@ -16,7 +16,7 @@ export default [
         node: true,
       },
     },
-    plugins: {
+    extends: {
       ...tsEslint.configs.recommended,
       eslintPluginPrettierRecommended,
     },
