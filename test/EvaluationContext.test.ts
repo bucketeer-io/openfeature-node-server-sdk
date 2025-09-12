@@ -4,7 +4,8 @@ import { convertContextValueToString, evaluationContextToBKTUser } from '../src/
 describe('convertContextValueToString', () => {
   it('returns empty string for null and undefined', () => {
     expect(convertContextValueToString(null)).toBe('')
-    expect(convertContextValueToString(undefined)).toBe('')
+    const undefinedValue = undefined
+    expect(convertContextValueToString(undefinedValue as any)).toBe('')
   })
 
   it('converts Date objects to ISO string', () => {
@@ -110,10 +111,11 @@ describe('evaluationContextToBKTUser', () => {
   })
 
   it('handles null and undefined values', () => {
+    const undefinedValue = undefined
     const evaluationContext: EvaluationContext = {
       targetingKey: 'user-123',
       nullValue: null,
-      undefinedValue: undefined
+      undefinedValue: undefinedValue as any,
     }
 
     const result = evaluationContextToBKTUser(evaluationContext)
