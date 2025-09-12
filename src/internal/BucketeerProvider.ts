@@ -122,8 +122,8 @@ export class BuckeeterProvider implements Provider {
 
     try {
       const client = initializeBKTClient(config);
-      this.client = client;
       await client.waitForInitialization({ timeout: 30_000 });
+      this.client = client;
       this.events.emit(ServerProviderEvents.Ready);
     } catch (error) {
       if (error instanceof Error && error.name === 'TimeoutError') {
