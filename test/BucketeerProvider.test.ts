@@ -43,27 +43,23 @@ describe('BuckeeterProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockConfig = {
+    mockConfig = defineBKTConfig({
       apiKey: 'test-api-key',
       apiEndpoint: 'http://test-endpoint',
       featureTag: 'test-tag',
-      eventsFlushInterval: 30,
+      eventsFlushInterval: 30_000,
       eventsMaxQueueSize: 100,
-      pollingInterval: 60,
-      appVersion: '1.0.0',
-      userAgent: 'test-agent',
-      fetch: jest.fn(),
-      storageFactory: jest.fn(),
+      cachePollingInterval: 60_000,
+      appVersion: '1.0.1',
       logger: console,
       enableLocalEvaluation: false,
-      cachePollingInterval: 60,
-    } as BKTConfig;
+    });
 
-    expectedConfig = {
+    expectedConfig = defineBKTConfig({
       ...mockConfig,
       wrapperSdkVersion: SDK_VERSION,
       wrapperSdkSourceId: SOURCE_ID_OPEN_FEATURE_NODE,
-    };
+    });
 
     mockContext = {
       targetingKey: 'test-user',
