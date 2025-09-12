@@ -1,5 +1,6 @@
 import {
   BuckeeterProvider,
+  DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
   SOURCE_ID_OPEN_FEATURE_NODE,
   wrongTypeResult,
 } from '../src/internal/BucketeerProvider';
@@ -95,7 +96,9 @@ describe('BuckeeterProvider', () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       await provider.initialize(mockContext);
       expect(initializeBKTClient).toHaveBeenCalledWith(expect.objectContaining(expectedConfig));
-      expect(mockClient.waitForInitialization).toHaveBeenCalledWith({ timeout: 30_000 });
+      expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
+        timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
+      });
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Ready);
     });
 

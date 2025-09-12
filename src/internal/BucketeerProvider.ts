@@ -29,6 +29,7 @@ import {
 } from './BKTEvaluationDetailExt';
 
 export const SOURCE_ID_OPEN_FEATURE_NODE = 104;
+export const DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS = 60_000;
 
 // implement the provider interface
 export class BuckeeterProvider implements Provider {
@@ -122,7 +123,7 @@ export class BuckeeterProvider implements Provider {
 
     try {
       const client = initializeBKTClient(config);
-      await client.waitForInitialization({ timeout: 30_000 });
+      await client.waitForInitialization({ timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS });
       this.client = client;
       this.events.emit(ServerProviderEvents.Ready);
     } catch (error) {
