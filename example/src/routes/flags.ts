@@ -26,8 +26,9 @@ router.post('/evaluate', async (req, res) => {
         return res.status(400).json({ error: 'Invalid flag type' });
     }
     res.json({ flagKey, value });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: errorMessage });
   }
 });
 

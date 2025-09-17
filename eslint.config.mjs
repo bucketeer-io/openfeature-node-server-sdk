@@ -4,7 +4,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default [
   {
-    ignores: ['dist/', '**/*.d.ts'],
+    ignores: ['dist/', 'lib/', '**/*.d.ts'],
   },
   // Spread recommended configs directly
   ...tsEslint.configs.recommended,

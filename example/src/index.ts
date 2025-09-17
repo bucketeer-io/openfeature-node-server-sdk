@@ -13,7 +13,7 @@ async function main() {
 
     // Set the provider and wait for initialization
     console.log('⏳ Initializing Bucketeer provider...');
-    await OpenFeature.setProviderAndWait(provider, defaultContext);
+    await OpenFeature.setProviderAndWait(provider);
     console.log('✅ Provider initialized successfully!\n');
 
     // Get a client instance
@@ -23,11 +23,7 @@ async function main() {
     console.log('🏃‍♂️ Running flag evaluations...\n');
 
     // Feature flags evaluation with detailed results
-    const booleanDetails = await client.getBooleanDetails(
-      'feature_toggle',
-      false,
-      defaultContext
-    );
+    const booleanDetails = await client.getBooleanDetails('feature_toggle', false, defaultContext);
     console.log('Boolean Flag Details:', {
       value: booleanDetails.value,
       reason: booleanDetails.reason,
@@ -37,7 +33,7 @@ async function main() {
     const stringDetails = await client.getStringDetails(
       'welcome_message',
       'Welcome!',
-      defaultContext
+      defaultContext,
     );
     console.log('String Flag Details:', {
       value: stringDetails.value,
@@ -46,7 +42,6 @@ async function main() {
     });
 
     console.log('\n✨ Example completed successfully!');
-
   } catch (error) {
     console.error('❌ Application error:', error);
     process.exit(1);
