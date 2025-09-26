@@ -142,6 +142,7 @@ export class BucketeerProvider implements Provider {
   public readonly runsOn = 'server';
   readonly metadata = {
     name: 'Bucketeer Provider',
+    version: SDK_VERSION,
   } as const;
   // Optional provider managed hooks
   hooks?: Hook[];
