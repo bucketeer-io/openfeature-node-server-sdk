@@ -23,6 +23,8 @@ import {
   ResolutionDetails,
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
+import { InternalConfig } from 'bkt-node-server-sdk/lib/internalConfig';
+import { mock } from 'node:test';
 
 jest.mock('bkt-node-server-sdk', () => {
   return {
@@ -101,6 +103,13 @@ describe('BucketeerProvider', () => {
     it('should successfully initialize the provider', async () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       await provider.initialize(mockContext);
+      //TO-DO: checking this, it should contain sdkVersion and sourceId
+      // const internalConfig = {
+      //   ...expectedConfig,
+      //   sdkVersion: SDK_VERSION,
+      //   sourceId: SOURCE_ID_OPEN_FEATURE_NODE,
+      // } satisfies InternalConfig;
+
       expect(initializeBKTClient).toHaveBeenCalledWith(expect.objectContaining(expectedConfig));
       expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
         timeout: 5000,
