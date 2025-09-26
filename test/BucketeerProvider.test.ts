@@ -24,11 +24,11 @@ import {
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
 import { InternalConfig } from 'bkt-node-server-sdk/lib/internalConfig';
-import { mock } from 'node:test';
 
 jest.mock('bkt-node-server-sdk', () => {
+  const actualImpl = jest.requireActual('bkt-node-server-sdk');
   return {
-    defineBKTConfig: jest.fn((cfg) => cfg),
+    ...actualImpl,
     initializeBKTClient: jest.fn(),
     Bucketeer: jest.fn(),
   };
@@ -37,14 +37,13 @@ jest.mock('bkt-node-server-sdk', () => {
 describe('BucketeerProvider', () => {
   let provider: BucketeerProvider;
   let mockClient: jest.Mocked<Bucketeer>;
-  let mockConfig: BKTConfig;
-  let expectedConfig: BKTConfig;
+  let userConfig: BKTConfig;
   let mockContext: EvaluationContext;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockConfig = defineBKTConfig({
+    userConfig = defineBKTConfig({
       apiKey: 'test-api-key',
       apiEndpoint: 'http://test-endpoint',
       featureTag: 'test-tag',
@@ -54,12 +53,6 @@ describe('BucketeerProvider', () => {
       appVersion: '1.0.1',
       logger: console,
       enableLocalEvaluation: false,
-    });
-
-    expectedConfig = defineBKTConfig({
-      ...mockConfig,
-      wrapperSdkVersion: SDK_VERSION,
-      wrapperSdkSourceId: SOURCE_ID_OPEN_FEATURE_NODE,
     });
 
     mockContext = {
@@ -85,11 +78,10 @@ describe('BucketeerProvider', () => {
       numberVariation: jest.fn(),
       objectVariation: jest.fn(),
       getBuildInfo: jest.fn(),
-      // Add any other missing methods from Bucketeer interface as needed
     };
 
     (initializeBKTClient as jest.Mock).mockReturnValue(mockClient);
-    provider = new BucketeerProvider(mockConfig, { initializationTimeoutMs: 5000 });
+    provider = new BucketeerProvider(userConfig, { initializationTimeoutMs: 5000 });
   });
 
   describe('metadata', () => {
@@ -103,14 +95,17 @@ describe('BucketeerProvider', () => {
     it('should successfully initialize the provider', async () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       await provider.initialize(mockContext);
-      //TO-DO: checking this, it should contain sdkVersion and sourceId
-      // const internalConfig = {
-      //   ...expectedConfig,
-      //   sdkVersion: SDK_VERSION,
-      //   sourceId: SOURCE_ID_OPEN_FEATURE_NODE,
-      // } satisfies InternalConfig;
-
-      expect(initializeBKTClient).toHaveBeenCalledWith(expect.objectContaining(expectedConfig));
+      // Even user config did not include wrapperSdkVersion and wrapperSourceId, they should be set internally
+      const internalConfig = {
+        ...userConfig,
+        sdkVersion: SDK_VERSION,
+        sourceId: SOURCE_ID_OPEN_FEATURE_NODE,
+      } satisfies InternalConfig;
+      expect(initializeBKTClient).toHaveBeenCalledWith(expect.objectContaining(internalConfig));
+      // Verify that SDK version and source ID were overridden with correct values
+      const { sdkVersion, sourceId } = internalConfig as unknown as InternalConfig;
+      expect(sdkVersion).toBe(SDK_VERSION);
+      expect(sourceId).toBe(SOURCE_ID_OPEN_FEATURE_NODE);
       expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
         timeout: 5000,
       });
@@ -146,7 +141,7 @@ describe('BucketeerProvider', () => {
     });
 
     it('should use default timeout if not provided in options', async () => {
-      provider = new BucketeerProvider(mockConfig);
+      provider = new BucketeerProvider(userConfig);
       await provider.initialize(mockContext);
       expect(mockClient.waitForInitialization).toHaveBeenCalledWith({
         timeout: DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
