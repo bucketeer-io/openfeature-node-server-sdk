@@ -20,6 +20,7 @@ This example demonstrates how to use the Bucketeer OpenFeature Node.js Server SD
    ```
 
 ## Example Scripts
+
 - `npm run example:basic` — Basic flag evaluation
 - `npm run example:context` — Evaluation context usage
 - `npm run example:hooks` — Hooks example
