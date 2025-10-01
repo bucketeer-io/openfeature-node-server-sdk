@@ -30,6 +30,7 @@ describe('BucketeerProvider - evaluation', () => {
       apiKey: API_KEY,
       featureTag: FEATURE_TAG,
       appVersion: '1.2.3',
+      logger: console,
     });
 
     const context = {
