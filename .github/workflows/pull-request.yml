@@ -6,7 +6,10 @@ on:
       - main
     paths-ignore:
       - "**/**.md"
-
+  push:
+    branches:
+      - feat/example
+     
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
