@@ -4,7 +4,6 @@ import { BucketeerProvider, SDK_VERSION } from '../../lib';
 import {
   ENDPOINT,
   FEATURE_TAG,
-  TARGETED_USER_ID,
   FEATURE_ID_BOOLEAN,
   FEATURE_ID_STRING,
   FEATURE_ID_INT,
