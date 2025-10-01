@@ -16,8 +16,8 @@ import {
 describe('BucketeerProvider - evaluation', () => {
   let config: BKTConfig;
 
-  afterAll(() => {
-    OpenFeature.close();
+  afterAll(async () => {
+    await OpenFeature.close();
   });
 
   afterEach(async () => {
@@ -50,17 +50,17 @@ describe('BucketeerProvider - evaluation', () => {
   describe('boolean evaluation', () => {
     it('should evaluate boolean feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getBooleanValue(FEATURE_ID_BOOLEAN, false);
+      const result = await client.getBooleanValue(FEATURE_ID_BOOLEAN, true);
       expect(typeof result).toBe('boolean');
-      expect(result).toBe(true);
+      expect(result).toBe(false);
 
-      const resultDetails = await client.getBooleanDetails(FEATURE_ID_BOOLEAN, false);
+      const resultDetails = await client.getBooleanDetails(FEATURE_ID_BOOLEAN, true);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_BOOLEAN,
         flagMetadata: {},
-        reason: 'DEFAULT',
-        value: true,
-        variant: 'variation 1',
+        reason: 'TARGET',
+        value: false,
+        variant: 'variation 2',
       } satisfies EvaluationDetails<boolean>);
     });
   });
@@ -70,15 +70,15 @@ describe('BucketeerProvider - evaluation', () => {
       const client = OpenFeature.getClient();
       const result = await client.getStringValue(FEATURE_ID_STRING, '');
       expect(typeof result).toBe('string');
-      expect(result).toBe('value-1');
+      expect(result).toBe('value-2');
 
       const resultDetails = await client.getStringDetails(FEATURE_ID_STRING, '');
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_STRING,
         flagMetadata: {},
-        reason: 'DEFAULT',
-        value: 'value-1',
-        variant: 'variation 1',
+        reason: 'TARGET',
+        value: 'value-2',
+        variant: 'variation 2',
       } satisfies EvaluationDetails<string>);
     });
   });
@@ -86,33 +86,33 @@ describe('BucketeerProvider - evaluation', () => {
   describe('number evaluation', () => {
     it('should evaluate int feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getNumberValue(FEATURE_ID_INT, 0);
+      const result = await client.getNumberValue(FEATURE_ID_INT, 10);
       expect(typeof result).toBe('number');
-      expect(result).toBe(10);
+      expect(result).toBe(20);
 
-      const resultDetails = await client.getNumberDetails(FEATURE_ID_INT, 0);
+      const resultDetails = await client.getNumberDetails(FEATURE_ID_INT, 30);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_INT,
         flagMetadata: {},
-        reason: 'DEFAULT',
-        value: 10,
-        variant: 'variation 1',
+        reason: 'TARGET',
+        value: 20,
+        variant: 'variation 2',
       } satisfies EvaluationDetails<number>);
     });
 
     it('should evaluate float feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getNumberValue(FEATURE_ID_FLOAT, 0.0);
+      const result = await client.getNumberValue(FEATURE_ID_FLOAT, 1.1);
       expect(typeof result).toBe('number');
-      expect(result).toBe(2.1);
+      expect(result).toBe(3.1);
 
-      const resultDetails = await client.getNumberDetails(FEATURE_ID_FLOAT, 0.0);
+      const resultDetails = await client.getNumberDetails(FEATURE_ID_FLOAT, 1.0);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_FLOAT,
         flagMetadata: {},
-        reason: 'DEFAULT',
-        value: 2.1,
-        variant: 'variation 1',
+        reason: 'TARGET',
+        value: 3.1,
+        variant: 'variation 2',
       } satisfies EvaluationDetails<number>);
     });
   });
@@ -122,15 +122,15 @@ describe('BucketeerProvider - evaluation', () => {
       const client = OpenFeature.getClient();
       const result = await client.getObjectValue(FEATURE_ID_JSON, {});
       expect(typeof result).toBe('object');
-      expect(result).toEqual({ str: 'str1', int: 'int1' });
+      expect(result).toEqual({ str: 'str2', int: 'int2' });
 
       const resultDetails = await client.getObjectDetails(FEATURE_ID_JSON, {});
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_JSON,
         flagMetadata: {},
-        reason: 'DEFAULT',
-        value: { str: 'str1', int: 'int1' },
-        variant: 'variation 1',
+        reason: 'TARGET',
+        value: { str: 'str2', int: 'int2' },
+        variant: 'variation 2',
       } satisfies EvaluationDetails<JsonValue>);
     });
   });
