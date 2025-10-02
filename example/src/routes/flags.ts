@@ -13,8 +13,8 @@ router.post('/evaluate', async (req, res) => {
   const context = {
     targetingKey: userId,
     email: userEmail,
-    userAgent: req.get('User-Agent'),
-    ipAddress: req.ip,
+    userAgent: req.get('User-Agent') || 'unknown',
+    ipAddress: req.ip || 'unknown',
   };
 
   try {

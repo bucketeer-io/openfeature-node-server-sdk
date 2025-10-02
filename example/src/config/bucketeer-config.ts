@@ -1,7 +1,7 @@
 import { defineBKTConfig } from '@bucketeer/openfeature-node-server-sdk';
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 export const bucketeerConfig = defineBKTConfig({
   apiKey: process.env.BUCKETEER_API_KEY!,
