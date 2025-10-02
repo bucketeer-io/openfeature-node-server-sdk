@@ -5,30 +5,29 @@ const router = Router();
 const client = OpenFeature.getClient();
 
 router.post('/evaluate', async (req, res) => {
-  const { flagKey, defaultValue, context, type } = req.body;
+  // Create evaluation context from request
+  // In a real app, you'd get the user ID from your auth system
+  const userId = (req.headers['x-user-id'] as string) || 'anonymous';
+  const userEmail = req.headers['x-user-email'] as string;
+
+  const context = {
+    targetingKey: userId,
+    email: userEmail,
+    userAgent: req.get('User-Agent'),
+    ipAddress: req.ip,
+  };
 
   try {
-    let value;
-    switch (type) {
-      case 'boolean':
-        value = await client.getBooleanValue(flagKey, defaultValue, context);
-        break;
-      case 'string':
-        value = await client.getStringValue(flagKey, defaultValue, context);
-        break;
-      case 'number':
-        value = await client.getNumberValue(flagKey, defaultValue, context);
-        break;
-      case 'object':
-        value = await client.getObjectValue(flagKey, defaultValue, context);
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid flag type' });
-    }
-    res.json({ flagKey, value });
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    res.status(500).json({ error: errorMessage });
+    const features = {
+      newDashboard: await client.getBooleanValue('new-dashboard', false, context),
+      welcomeMessage: await client.getStringValue('welcome-message', 'Welcome!', context),
+      maxItems: await client.getNumberValue('max-items-per-page', 10, context),
+    };
+
+    res.json(features);
+  } catch (error) {
+    console.error('Feature flag evaluation error:', error);
+    res.status(500).json({ error: 'Failed to evaluate features' });
   }
 });
 
