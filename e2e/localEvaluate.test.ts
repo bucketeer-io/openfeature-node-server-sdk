@@ -1,6 +1,5 @@
 import { EvaluationDetails, JsonValue, OpenFeature, ProviderStatus } from '@openfeature/server-sdk';
-import { defineBKTConfig, BKTConfig } from 'bkt-node-server-sdk';
-import { BucketeerProvider, SDK_VERSION } from '../../lib';
+import { BucketeerProvider, SDK_VERSION, defineBKTConfig, BKTConfig } from '../lib';
 import {
   ENDPOINT,
   FEATURE_TAG,
@@ -15,6 +14,10 @@ import {
 
 describe('BucketeerProvider - evaluation', () => {
   let config: BKTConfig;
+  const context = {
+    targetingKey: TARGETED_SEGMENT_USER_ID,
+    app_version: '1.2.3',
+  };
 
   afterAll(async () => {
     await OpenFeature.close();
@@ -34,12 +37,6 @@ describe('BucketeerProvider - evaluation', () => {
       enableLocalEvaluation: true,
     });
 
-    const context = {
-      targetingKey: TARGETED_SEGMENT_USER_ID,
-      app_version: '1.2.3',
-    };
-
-    OpenFeature.setContext(context);
     const provider = new BucketeerProvider(config);
     await OpenFeature.setProviderAndWait(provider);
 
@@ -52,11 +49,11 @@ describe('BucketeerProvider - evaluation', () => {
   describe('boolean evaluation', () => {
     it('should evaluate boolean feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getBooleanValue(FEATURE_ID_BOOLEAN, false);
+      const result = await client.getBooleanValue(FEATURE_ID_BOOLEAN, false, context);
       expect(typeof result).toBe('boolean');
       expect(result).toBe(true);
 
-      const resultDetails = await client.getBooleanDetails(FEATURE_ID_BOOLEAN, true);
+      const resultDetails = await client.getBooleanDetails(FEATURE_ID_BOOLEAN, true, context);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_BOOLEAN,
         flagMetadata: {},
@@ -70,11 +67,11 @@ describe('BucketeerProvider - evaluation', () => {
   describe('string evaluation', () => {
     it('should evaluate string feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getStringValue(FEATURE_ID_STRING, '');
+      const result = await client.getStringValue(FEATURE_ID_STRING, '', context);
       expect(typeof result).toBe('string');
       expect(result).toBe('value-3');
 
-      const resultDetails = await client.getStringDetails(FEATURE_ID_STRING, '');
+      const resultDetails = await client.getStringDetails(FEATURE_ID_STRING, '', context);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_STRING,
         flagMetadata: {},
@@ -88,11 +85,11 @@ describe('BucketeerProvider - evaluation', () => {
   describe('number evaluation', () => {
     it('should evaluate int feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getNumberValue(FEATURE_ID_INT, 11);
+      const result = await client.getNumberValue(FEATURE_ID_INT, 11, context);
       expect(typeof result).toBe('number');
       expect(result).toBe(10);
 
-      const resultDetails = await client.getNumberDetails(FEATURE_ID_INT, 30);
+      const resultDetails = await client.getNumberDetails(FEATURE_ID_INT, 30, context);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_INT,
         flagMetadata: {},
@@ -104,11 +101,11 @@ describe('BucketeerProvider - evaluation', () => {
 
     it('should evaluate float feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getNumberValue(FEATURE_ID_FLOAT, 1.1);
+      const result = await client.getNumberValue(FEATURE_ID_FLOAT, 1.1, context);
       expect(typeof result).toBe('number');
       expect(result).toBe(2.1);
 
-      const resultDetails = await client.getNumberDetails(FEATURE_ID_FLOAT, 1.0);
+      const resultDetails = await client.getNumberDetails(FEATURE_ID_FLOAT, 1.0, context);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_FLOAT,
         flagMetadata: {},
@@ -122,11 +119,15 @@ describe('BucketeerProvider - evaluation', () => {
   describe('object evaluation', () => {
     it('should evaluate json feature flag', async () => {
       const client = OpenFeature.getClient();
-      const result = await client.getObjectValue(FEATURE_ID_JSON, { str: 'str2', int: 'int3' });
+      const result = await client.getObjectValue(
+        FEATURE_ID_JSON,
+        { str: 'str2', int: 'int3' },
+        context,
+      );
       expect(typeof result).toBe('object');
       expect(result).toEqual({ str: 'str1', int: 'int1' });
 
-      const resultDetails = await client.getObjectDetails(FEATURE_ID_JSON, {});
+      const resultDetails = await client.getObjectDetails(FEATURE_ID_JSON, {}, context);
       expect(resultDetails).toEqual({
         flagKey: FEATURE_ID_JSON,
         flagMetadata: {},

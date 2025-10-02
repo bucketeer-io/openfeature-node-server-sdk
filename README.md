@@ -17,7 +17,7 @@ For documentation related to flags management in Bucketeer, refer to the [Bucket
 npm install @bucketeer/openfeature-node-server-sdk
 ```
 
-This will automatically install the required peer dependencies: `@openfeature/server-sdk` and `bkt-node-server-sdk`.
+This will automatically install the required peer dependencies: `@openfeature/server-sdk` and `@bucketeer/node-server-sdk`.
 
 ## Usage
 
@@ -27,8 +27,7 @@ Bucketeer provider needs to be created and then set in the global OpenFeature in
 
 ```typescript
 import { OpenFeature } from '@openfeature/server-sdk';
-import { defineBKTConfig } from 'bkt-node-server-sdk';
-import { BucketeerProvider } from '@bucketeer/openfeature-node-server-sdk';
+import { BucketeerProvider, defineBKTConfig } from '@bucketeer/openfeature-node-server-sdk';
 
 const config = defineBKTConfig({
   apiKey: 'BUCKETEER_API_KEY',
