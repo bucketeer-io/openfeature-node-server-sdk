@@ -27,7 +27,7 @@ Bucketeer provider needs to be created and then set in the global OpenFeature in
 
 ```typescript
 import { OpenFeature } from '@openfeature/server-sdk';
-import { defineBKTConfig } from 'bkt-node-server-sdk'
+import { defineBKTConfig } from 'bkt-node-server-sdk';
 import { BucketeerProvider } from '@bucketeer/openfeature-node-server-sdk';
 
 const config = defineBKTConfig({
@@ -59,8 +59,8 @@ const client = OpenFeature.getClient();
 
 // Define evaluation context per request/user
 const evaluationContext = {
-  targetingKey: 'user-123',          // Required: unique user identifier
-  email: 'user@example.com',         // User attributes for targeting
+  targetingKey: 'user-123', // Required: unique user identifier
+  email: 'user@example.com', // User attributes for targeting
   plan: 'premium',
   region: 'us-east-1',
   timestamp: new Date().toISOString(),
@@ -100,9 +100,9 @@ const client = OpenFeature.getClient();
 
 // Define evaluation context (typically per request)
 const context = {
-  targetingKey: 'user-123',    // Required
+  targetingKey: 'user-123', // Required
   email: 'user@example.com',
-  plan: 'premium'
+  plan: 'premium',
 };
 
 // boolean flag
@@ -137,9 +137,9 @@ const client = OpenFeature.getClient();
 app.get('/api/features', async (req, res) => {
   // Create evaluation context from request
   // In a real app, you'd get the user ID from your auth system
-  const userId = req.headers['x-user-id'] as string || 'anonymous';
+  const userId = (req.headers['x-user-id'] as string) || 'anonymous';
   const userEmail = req.headers['x-user-email'] as string;
-  
+
   const context = {
     targetingKey: userId,
     email: userEmail,
@@ -247,9 +247,12 @@ async function main() {
       plan: 'free',
     };
 
-    const featureForAnotherUser = await client.getBooleanValue('new-feature', false, anotherUserContext);
+    const featureForAnotherUser = await client.getBooleanValue(
+      'new-feature',
+      false,
+      anotherUserContext,
+    );
     console.log(`Feature for another user: ${featureForAnotherUser}`);
-
   } catch (error) {
     console.error('Error:', error);
   } finally {
