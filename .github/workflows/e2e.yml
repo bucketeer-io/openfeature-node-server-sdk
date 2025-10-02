@@ -1,9 +1,6 @@
 name: e2e
 
 on:
-  push:
-    branches:
-      - feat/example
   workflow_dispatch:
   workflow_call:
     secrets:
