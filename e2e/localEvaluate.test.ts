@@ -11,7 +11,7 @@ import {
   FEATURE_ID_JSON,
   SERVER_ROLE_API_KEY,
   TARGETED_SEGMENT_USER_ID,
-} from './constants';
+} from './constants/constants';
 
 describe('BucketeerProvider - evaluation', () => {
   let config: BKTConfig;

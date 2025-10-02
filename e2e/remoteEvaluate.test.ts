@@ -11,7 +11,7 @@ import {
   FEATURE_ID_INT,
   FEATURE_ID_FLOAT,
   FEATURE_ID_JSON,
-} from './constants';
+} from './constants/constants';
 
 describe('BucketeerProvider - evaluation', () => {
   let config: BKTConfig;
