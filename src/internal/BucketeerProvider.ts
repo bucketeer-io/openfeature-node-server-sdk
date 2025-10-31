@@ -91,16 +91,9 @@ export class BucketeerProvider implements Provider {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
-    if (evaluationDetails.variationValue === null) {
-      return wrongTypeResult(defaultValue, `Expected object but got null`);
-    }
-    if (typeof evaluationDetails.variationValue === 'object') {
-      return toResolutionDetailsJsonValue(evaluationDetails);
-    }
-    return wrongTypeResult(
-      defaultValue,
-      `Expected object but got ${typeof evaluationDetails.variationValue}`,
-    );
+    // Accept all JsonValue types even null and primitive types
+    // They are valid JsonValue and BKTValue can represent them
+    return toResolutionDetailsJsonValue(evaluationDetails);
   }
 
   async initialize(context?: EvaluationContext) {

@@ -21,6 +21,7 @@ import {
   StandardResolutionReasons,
   ServerProviderEvents,
   ResolutionDetails,
+  JsonValue,
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
 import { InternalConfig } from 'bkt-node-server-sdk/lib/internalConfig';
@@ -250,31 +251,27 @@ describe('BucketeerProvider', () => {
       } satisfies ResolutionDetails<object>);
     });
 
-    describe('should handle type mismatch in object evaluation', () => {
+    describe('should handle null and primitive in object evaluation', () => {
       const typeMismatchTestCases = [
         {
           description: 'string value',
           variationValue: 'not-an-object',
-          expectedErrorMessage: 'Expected object but got string',
         },
         {
           description: 'null value',
           variationValue: null,
-          expectedErrorMessage: 'Expected object but got null',
         },
         {
           description: 'number value',
           variationValue: 1.1,
-          expectedErrorMessage: 'Expected object but got number',
         },
         {
           description: 'boolean value',
           variationValue: true,
-          expectedErrorMessage: 'Expected object but got boolean',
         },
       ];
 
-      typeMismatchTestCases.forEach(({ description, variationValue, expectedErrorMessage }) => {
+      typeMismatchTestCases.forEach(({ description, variationValue }) => {
         it(`should handle type mismatch with ${description}`, async () => {
           await provider.initialize(mockContext);
           mockClient.objectVariationDetails.mockResolvedValue({
@@ -283,7 +280,7 @@ describe('BucketeerProvider', () => {
             userId: 'test-user',
             variationId: 'var-id',
             variationValue,
-            variationName: 'wrong-type-variant',
+            variationName: 'not an object',
             reason: 'DEFAULT',
           } satisfies BKTEvaluationDetails<BKTValue>);
           const defaultValue = { default: true };
@@ -293,12 +290,12 @@ describe('BucketeerProvider', () => {
             mockContext,
             console,
           );
+          expect(mockClient.objectVariationDetails).toHaveBeenCalled();
           expect(result).toEqual({
-            value: defaultValue,
-            reason: StandardResolutionReasons.ERROR,
-            errorCode: ErrorCode.TYPE_MISMATCH,
-            errorMessage: expectedErrorMessage,
-          });
+            value: variationValue,
+            variant: 'not an object',
+            reason: 'DEFAULT',
+          } satisfies ResolutionDetails<JsonValue>);
         });
       });
     });
