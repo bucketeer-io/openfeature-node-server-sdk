@@ -2,7 +2,6 @@ import {
   BucketeerProvider,
   DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
   SOURCE_ID_OPEN_FEATURE_NODE,
-  wrongTypeResult,
 } from '../src/internal/BucketeerProvider';
 import {
   BKTConfig,
@@ -14,11 +13,9 @@ import {
 } from 'bkt-node-server-sdk';
 import {
   EvaluationContext,
-  ErrorCode,
   InvalidContextError,
   ProviderFatalError,
   ProviderNotReadyError,
-  StandardResolutionReasons,
   ServerProviderEvents,
   ResolutionDetails,
   JsonValue,
@@ -314,16 +311,6 @@ describe('BucketeerProvider', () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       expect(() => provider.requiredBKTClient()).toThrow(ProviderNotReadyError);
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Error);
-    });
-
-    it('should correctly create wrongTypeResult', () => {
-      const result = wrongTypeResult('default', 'Type error');
-      expect(result).toEqual({
-        value: 'default',
-        reason: StandardResolutionReasons.ERROR,
-        errorCode: ErrorCode.TYPE_MISMATCH,
-        errorMessage: 'Type error',
-      });
     });
   });
 });

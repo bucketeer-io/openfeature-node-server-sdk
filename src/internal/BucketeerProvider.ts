@@ -143,12 +143,3 @@ export class BucketeerProvider implements Provider {
   // Optional provider managed hooks
   hooks?: Hook[];
 }
-
-export function wrongTypeResult<T>(value: T, errorMessage: string): ResolutionDetails<T> {
-  return {
-    value,
-    reason: StandardResolutionReasons.ERROR,
-    errorCode: ErrorCode.TYPE_MISMATCH,
-    errorMessage,
-  };
-}
