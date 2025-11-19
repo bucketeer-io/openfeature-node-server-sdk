@@ -1,4 +1,4 @@
-import { User } from 'bkt-node-server-sdk';
+import { User } from '@bucketeer/node-server-sdk';
 import {
   EvaluationContext,
   EvaluationContextValue,

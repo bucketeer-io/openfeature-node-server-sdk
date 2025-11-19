@@ -42,6 +42,7 @@ describe('BucketeerProvider - evaluation', () => {
 
     const client = OpenFeature.getClient();
     expect(client.metadata.providerMetadata.name).toBe('Bucketeer Provider');
+    expect(SDK_VERSION).toBeDefined();
     expect(client.metadata.providerMetadata.version).toBe(SDK_VERSION);
     expect(client.providerStatus).toBe(ProviderStatus.READY);
   });
