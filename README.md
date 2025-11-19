@@ -14,10 +14,10 @@ For documentation related to flags management in Bucketeer, refer to the [Bucket
 ## Installation
 
 ```bash
-npm install @bucketeer/openfeature-node-server-sdk
+npm install @bucketeer/openfeature-node-server-sdk @openfeature/server-sdk @bucketeer/node-server-sdk
 ```
 
-This will automatically install the required peer dependencies: `@openfeature/server-sdk` and `@bucketeer/node-server-sdk`.
+**Note:** This package requires `@openfeature/server-sdk` and `@bucketeer/node-server-sdk` as peer dependencies.
 
 ## Usage
 
