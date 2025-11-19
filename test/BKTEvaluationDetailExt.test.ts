@@ -2,7 +2,7 @@ import {
   toResolutionDetails,
   toResolutionDetailsJsonValue,
 } from '../src/internal/BKTEvaluationDetailExt';
-import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk';
+import { BKTEvaluationDetails, BKTValue } from '@bucketeer/node-server-sdk';
 import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk';
 
 describe('toResolutionDetails', () => {

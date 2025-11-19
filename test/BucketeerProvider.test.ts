@@ -10,7 +10,7 @@ import {
   Bucketeer,
   defineBKTConfig,
   initializeBKTClient,
-} from 'bkt-node-server-sdk';
+} from '@bucketeer/node-server-sdk';
 import {
   EvaluationContext,
   InvalidContextError,
@@ -21,10 +21,10 @@ import {
   JsonValue,
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
-import { InternalConfig } from 'bkt-node-server-sdk/lib/internalConfig';
+import { InternalConfig } from '@bucketeer/node-server-sdk/lib/internalConfig';
 
-jest.mock('bkt-node-server-sdk', () => {
-  const actualImpl = jest.requireActual('bkt-node-server-sdk');
+jest.mock('@bucketeer/node-server-sdk', () => {
+  const actualImpl = jest.requireActual('@bucketeer/node-server-sdk');
   return {
     ...actualImpl,
     initializeBKTClient: jest.fn(),

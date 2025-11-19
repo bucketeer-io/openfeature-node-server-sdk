@@ -1,5 +1,4 @@
 import {
-  ErrorCode,
   EvaluationContext,
   Hook,
   InvalidContextError,
@@ -11,10 +10,9 @@ import {
   ProviderNotReadyError,
   ResolutionDetails,
   ServerProviderEvents,
-  StandardResolutionReasons,
 } from '@openfeature/server-sdk';
 
-import { BKTConfig, Bucketeer, defineBKTConfig, initializeBKTClient } from 'bkt-node-server-sdk';
+import { BKTConfig, Bucketeer, defineBKTConfig, initializeBKTClient } from '@bucketeer/node-server-sdk';
 
 import { SDK_VERSION } from './version';
 import { evaluationContextToBKTUser } from './EvaluationContext';

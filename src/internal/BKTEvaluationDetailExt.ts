@@ -1,5 +1,5 @@
 import { JsonValue, ResolutionDetails } from '@openfeature/server-sdk';
-import { BKTEvaluationDetails, BKTValue } from 'bkt-node-server-sdk';
+import { BKTEvaluationDetails, BKTValue } from '@bucketeer/node-server-sdk';
 
 function toResolutionDetails<T extends BKTValue>(
   evaluationDetails: BKTEvaluationDetails<T>,
