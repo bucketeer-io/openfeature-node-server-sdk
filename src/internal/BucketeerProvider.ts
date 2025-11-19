@@ -12,7 +12,12 @@ import {
   ServerProviderEvents,
 } from '@openfeature/server-sdk';
 
-import { BKTConfig, Bucketeer, defineBKTConfig, initializeBKTClient } from '@bucketeer/node-server-sdk';
+import {
+  BKTConfig,
+  Bucketeer,
+  defineBKTConfig,
+  initializeBKTClient,
+} from '@bucketeer/node-server-sdk';
 
 import { SDK_VERSION } from './version';
 import { evaluationContextToBKTUser } from './EvaluationContext';
