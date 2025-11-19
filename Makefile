@@ -36,7 +36,7 @@ publish-dry:
 	npm publish --dry-run
 
 .PHONY: publish
-publish: copy-genfiles
+publish:
 ifeq ($(shell $(NPM_BIN_DIR)/semver -r ">$(CURRENT_VERSION)" $(LOCAL_VERSION) ),$(LOCAL_VERSION))
 	npm publish --access public
 else
