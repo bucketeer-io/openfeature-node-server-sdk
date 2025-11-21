@@ -18,12 +18,12 @@
   },
   "peerDependencies": {
     "@openfeature/server-sdk": "^1.19.0",
-    "@bucketeer/node-server-sdk": "^0.4.2"
+    "@bucketeer/node-server-sdk": "^0.4.4"
   },
   "devDependencies": {
     "@openfeature/core": "^1.9.0",
     "@openfeature/server-sdk": "^1.19.0",
-    "@bucketeer/node-server-sdk": "^0.4.3",
+    "@bucketeer/node-server-sdk": "^0.4.4",
     "@eslint/js": "^9.8.0",
     "@types/eslint": "^9.6.0",
     "@types/eslint__js": "^8.42.3",
