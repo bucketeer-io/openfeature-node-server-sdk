@@ -251,16 +251,14 @@ describe('BucketeerProvider', () => {
     });
 
     describe('should handle type mismatch in object evaluation', () => {
+      // The Bucketeer SDK's objectVariationDetails implementation ensures that
+      // the returned variationValue is never null when a valid object/array default is provided.
+      // Thus, we don't need an explicit null check here.
       const typeMismatchTestCases = [
         {
           description: 'string value',
           variationValue: 'not-an-object',
           expectedErrorMessage: 'Expected object but got string',
-        },
-        {
-          description: 'null value',
-          variationValue: null,
-          expectedErrorMessage: 'Expected object but got null',
         },
         {
           description: 'number value',

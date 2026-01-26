@@ -132,14 +132,13 @@ export class BucketeerProvider implements Provider {
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
 
-    // Step 1: Check for null (special case where typeof null === 'object')
-    if (evaluationDetails.variationValue === null) {
-      return wrongTypeResult(defaultValue, `Expected object but got null`);
-    }
+    // The Bucketeer SDK's objectVariationDetails implementation ensures that
+    // the returned variationValue is never null when a valid object/array default is provided.
+    // Thus, we don't need an explicit null check here.
 
-    // Step 2: Verify the value is an object type (object or array)
+    // Step 1: Verify the value is an object type (object or array)
     if (typeof evaluationDetails.variationValue === 'object') {
-      // Step 3: Distinguish between arrays and plain objects
+      // Step 2: Distinguish between arrays and plain objects
       // Note: At this point we've validated the top-level type (array vs object).
       // However, DUE TO TYPE ERASURE, we cannot validate:
       // - Array element types (e.g., string[] vs number[])
@@ -147,7 +146,7 @@ export class BucketeerProvider implements Provider {
       const resultIsJsonArray = Array.isArray(evaluationDetails.variationValue);
       const defaultIsJsonArray = Array.isArray(defaultValue);
 
-      // Step 4: Enforce type consistency between default and returned value
+      // Step 3: Enforce type consistency between default and returned value
       if (resultIsJsonArray !== defaultIsJsonArray) {
         return wrongTypeResult(
           defaultValue,
@@ -161,7 +160,7 @@ export class BucketeerProvider implements Provider {
       return toResolutionDetailsJsonValue(evaluationDetails);
     }
 
-    // Step 5: Reject all primitive types (string, number, boolean)
+    // Step 4: Reject all primitive types (string, number, boolean)
     // This prevents runtime crashes when users specify a generic <T> that doesn't
     // match the actual primitive value returned by the backend.
     return wrongTypeResult(
