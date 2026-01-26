@@ -303,6 +303,32 @@ describe('BucketeerProvider', () => {
       });
     });
 
+    describe('should handle invalid defaultValue in object evaluation', () => {
+      const invalidDefaultValues = [
+        { label: 'string', value: 'primitive', expectedType: 'string' },
+        { label: 'number', value: 123, expectedType: 'number' },
+        { label: 'boolean', value: true, expectedType: 'boolean' },
+        { label: 'null', value: null, expectedType: 'null' },
+      ];
+
+      invalidDefaultValues.forEach(({ label, value, expectedType }) => {
+        it(`should return type mismatch error when defaultValue is ${label}`, async () => {
+          const result = await provider.resolveObjectEvaluation(
+            'test-feature',
+            value,
+            mockContext,
+            console,
+          );
+          expect(result).toEqual({
+            value: value,
+            reason: StandardResolutionReasons.ERROR,
+            errorCode: ErrorCode.TYPE_MISMATCH,
+            errorMessage: `Default value must be an object or array but got ${expectedType}`,
+          });
+        });
+      });
+    });
+
     it('should handle array vs object type mismatch when expecting object but got array', async () => {
       await provider.initialize(mockContext);
       mockClient.objectVariationDetails.mockResolvedValue({

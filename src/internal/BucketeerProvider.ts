@@ -116,6 +116,18 @@ export class BucketeerProvider implements Provider {
     context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<T>> {
+    // Early guard: Verify that defaultValue itself is an object or array
+    // This enforces the "ONLY supports object types" contract even if the caller
+    // attempts to pass a primitive as the default value.
+    if (defaultValue === null || typeof defaultValue !== 'object') {
+      return wrongTypeResult(
+        defaultValue,
+        `Default value must be an object or array but got ${
+          defaultValue === null ? 'null' : typeof defaultValue
+        }`,
+      );
+    }
+
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
