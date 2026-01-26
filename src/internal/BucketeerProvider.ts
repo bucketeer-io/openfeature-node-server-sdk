@@ -1,4 +1,5 @@
 import {
+  ErrorCode,
   EvaluationContext,
   Hook,
   InvalidContextError,
@@ -10,6 +11,7 @@ import {
   ProviderNotReadyError,
   ResolutionDetails,
   ServerProviderEvents,
+  StandardResolutionReasons,
 } from '@openfeature/server-sdk';
 
 import {
@@ -85,6 +87,29 @@ export class BucketeerProvider implements Provider {
     return toResolutionDetails(evaluationDetails);
   }
 
+  /**
+   * Resolves an object or array value from a feature flag.
+   *
+   * ⚠️ STRICT TYPE VALIDATION:
+   * - This method ONLY supports object types (JSON objects and arrays).
+   * - Primitive types (string, number, boolean) are explicitly rejected to ensure type safety.
+   * - For primitive types, use the corresponding methods on the OpenFeature Client: `getBooleanValue`, `getStringValue`, `getNumberValue`, or their `Details` variants.
+   *
+   * ⚠️ NESTED TYPE CAVEAT:
+   * - While the top-level type (Array vs Object) is validated, the internal structure
+   *   (e.g., array element types or object property keys/types) cannot be validated at the provider level due to type erasure.
+   * - Always use additional runtime validation (type guards, Zod, etc.) before accessing nested properties.
+   *
+   * @example
+   * // Provider validates: result is array, default is array ✓
+   * const result = client.getObjectDetails<string[]>(flagKey, ['default'])
+   *
+   * // But provider CANNOT validate element types ⚠️
+   * // Use type guard before accessing:
+   * if (Array.isArray(result.value) && result.value.every(x => typeof x === 'string')) {
+   *   result.value.forEach(str => str.toUpperCase()) // Now safe
+   * }
+   */
   async resolveObjectEvaluation<T extends JsonValue>(
     flagKey: string,
     defaultValue: T,
@@ -94,9 +119,43 @@ export class BucketeerProvider implements Provider {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
-    // Accept all JsonValue types even null and primitive types
-    // They are valid JsonValue and BKTValue can represent them
-    return toResolutionDetailsJsonValue(evaluationDetails);
+
+    // Step 1: Check for null (special case where typeof null === 'object')
+    if (evaluationDetails.variationValue === null) {
+      return wrongTypeResult(defaultValue, `Expected object but got null`);
+    }
+
+    // Step 2: Verify the value is an object type (object or array)
+    if (typeof evaluationDetails.variationValue === 'object') {
+      // Step 3: Distinguish between arrays and plain objects
+      // Note: At this point we've validated the top-level type (array vs object).
+      // However, DUE TO TYPE ERASURE, we cannot validate:
+      // - Array element types (e.g., string[] vs number[])
+      // - Object property shapes (e.g., {name: string} vs {age: number})
+      const resultIsJsonArray = Array.isArray(evaluationDetails.variationValue);
+      const defaultIsJsonArray = Array.isArray(defaultValue);
+
+      // Step 4: Enforce type consistency between default and returned value
+      if (resultIsJsonArray !== defaultIsJsonArray) {
+        return wrongTypeResult(
+          defaultValue,
+          `Expected ${defaultIsJsonArray ? 'array' : 'object'} but got ${
+            resultIsJsonArray ? 'array' : 'object'
+          }`,
+        );
+      }
+
+      // Top-level structure is consistent - return the result
+      return toResolutionDetailsJsonValue(evaluationDetails);
+    }
+
+    // Step 5: Reject all primitive types (string, number, boolean)
+    // This prevents runtime crashes when users specify a generic <T> that doesn't
+    // match the actual primitive value returned by the backend.
+    return wrongTypeResult(
+      defaultValue,
+      `Expected object but got ${typeof evaluationDetails.variationValue}`,
+    );
   }
 
   async initialize(context?: EvaluationContext) {
@@ -145,4 +204,13 @@ export class BucketeerProvider implements Provider {
   } as const;
   // Optional provider managed hooks
   hooks?: Hook[];
+}
+
+export function wrongTypeResult<T>(value: T, errorMessage: string): ResolutionDetails<T> {
+  return {
+    value,
+    reason: StandardResolutionReasons.ERROR,
+    errorCode: ErrorCode.TYPE_MISMATCH,
+    errorMessage,
+  };
 }
