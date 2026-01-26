@@ -131,19 +131,19 @@ export class BucketeerProvider implements Provider {
     const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
+    const variationValue = evaluationDetails.variationValue;
 
-    // The Bucketeer SDK's objectVariationDetails implementation ensures that
-    // the returned variationValue is never null when a valid object/array default is provided.
-    // Thus, we don't need an explicit null check here.
-
-    // Step 1: Verify the value is an object type (object or array)
-    if (typeof evaluationDetails.variationValue === 'object') {
+    // Step 1: Verify the value is a valid non-null object type (object or array).
+    // While the Bucketeer SDK implementation ensures variationValue is never null when
+    // a valid default is provided, we explicitly check for null to protect against
+    // the 'typeof null === "object"' quirk in JavaScript.
+    if (variationValue !== null && typeof variationValue === 'object') {
       // Step 2: Distinguish between arrays and plain objects
       // Note: At this point we've validated the top-level type (array vs object).
       // However, DUE TO TYPE ERASURE, we cannot validate:
       // - Array element types (e.g., string[] vs number[])
       // - Object property shapes (e.g., {name: string} vs {age: number})
-      const resultIsJsonArray = Array.isArray(evaluationDetails.variationValue);
+      const resultIsJsonArray = Array.isArray(variationValue);
       const defaultIsJsonArray = Array.isArray(defaultValue);
 
       // Step 3: Enforce type consistency between default and returned value
@@ -160,13 +160,11 @@ export class BucketeerProvider implements Provider {
       return toResolutionDetailsJsonValue(evaluationDetails);
     }
 
-    // Step 4: Reject all primitive types (string, number, boolean)
+    // Step 4: Reject all other types (null, string, number, boolean)
     // This prevents runtime crashes when users specify a generic <T> that doesn't
-    // match the actual primitive value returned by the backend.
-    return wrongTypeResult(
-      defaultValue,
-      `Expected object but got ${typeof evaluationDetails.variationValue}`,
-    );
+    // match the actual value returned by the backend.
+    const actualType = variationValue === null ? 'null' : typeof variationValue;
+    return wrongTypeResult(defaultValue, `Expected object but got ${actualType}`);
   }
 
   async initialize(context?: EvaluationContext) {
