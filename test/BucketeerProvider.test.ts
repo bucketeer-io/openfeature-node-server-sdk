@@ -250,6 +250,32 @@ describe('BucketeerProvider', () => {
       } satisfies ResolutionDetails<object>);
     });
 
+    it('should resolve object evaluation with array', async () => {
+      await provider.initialize(mockContext);
+      const variationValue = ['item1', 'item2'];
+      mockClient.objectVariationDetails.mockResolvedValue({
+        featureId: 'test-feature',
+        featureVersion: 1,
+        userId: 'test-user',
+        variationId: 'var-id',
+        variationValue: variationValue,
+        variationName: 'array-variant',
+        reason: 'CLIENT',
+      } satisfies BKTEvaluationDetails<BKTValue>);
+      const result = await provider.resolveObjectEvaluation(
+        'test-feature',
+        [],
+        mockContext,
+        console,
+      );
+      expect(mockClient.objectVariationDetails).toHaveBeenCalled();
+      expect(result).toEqual({
+        value: variationValue,
+        variant: 'array-variant',
+        reason: 'CLIENT',
+      } satisfies ResolutionDetails<object>);
+    });
+
     describe('should handle type mismatch in object evaluation', () => {
       // The Bucketeer SDK's objectVariationDetails implementation ensures that
       // the returned variationValue is never null when a valid object/array default is provided.
@@ -297,6 +323,32 @@ describe('BucketeerProvider', () => {
             errorCode: ErrorCode.TYPE_MISMATCH,
             errorMessage: expectedErrorMessage,
           });
+        });
+      });
+
+      it('should handle type mismatch with primitive value when defaultValue is array', async () => {
+        await provider.initialize(mockContext);
+        mockClient.objectVariationDetails.mockResolvedValue({
+          featureId: 'test-feature',
+          featureVersion: 1,
+          userId: 'test-user',
+          variationId: 'var-id',
+          variationValue: 'not-an-array',
+          variationName: 'wrong-type-variant',
+          reason: 'DEFAULT',
+        } satisfies BKTEvaluationDetails<BKTValue>);
+        const defaultValue = ['item1', 'item2'];
+        const result = await provider.resolveObjectEvaluation(
+          'test-feature',
+          defaultValue,
+          mockContext,
+          console,
+        );
+        expect(result).toEqual({
+          value: defaultValue,
+          reason: StandardResolutionReasons.ERROR,
+          errorCode: ErrorCode.TYPE_MISMATCH,
+          errorMessage: 'Expected object but got string',
         });
       });
     });
