@@ -84,6 +84,10 @@ describe('BucketeerProvider', () => {
     provider = new BucketeerProvider(userConfig, { initializationTimeoutMs: 5000 });
   });
 
+  afterEach(async () => {
+    await provider.onClose();
+  });
+
   describe('metadata', () => {
     it('should have correct metadata', () => {
       expect(provider.metadata.name).toBe('Bucketeer Provider');
@@ -150,8 +154,11 @@ describe('BucketeerProvider', () => {
   });
 
   describe('flag evaluation methods', () => {
-    it('should resolve boolean evaluation', async () => {
+    beforeEach(async () => {
       await provider.initialize(mockContext);
+    });
+
+    it('should resolve boolean evaluation', async () => {
       mockClient.booleanVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -176,7 +183,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve string evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.stringVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -201,7 +207,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve number evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.numberVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -226,7 +231,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve object evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.objectVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -251,7 +255,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve object evaluation with array', async () => {
-      await provider.initialize(mockContext);
       const variationValue = ['item1', 'item2'];
       mockClient.objectVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
@@ -302,7 +305,6 @@ describe('BucketeerProvider', () => {
 
       typeMismatchTestCases.forEach(({ description, variationValue, expectedErrorMessage }) => {
         it(`should handle type mismatch with ${description}`, async () => {
-          await provider.initialize(mockContext);
           mockClient.objectVariationDetails.mockResolvedValue({
             featureId: 'test-feature',
             featureVersion: 1,
@@ -329,7 +331,6 @@ describe('BucketeerProvider', () => {
       });
 
       it('should handle type mismatch with primitive value when defaultValue is array', async () => {
-        await provider.initialize(mockContext);
         mockClient.objectVariationDetails.mockResolvedValue({
           featureId: 'test-feature',
           featureVersion: 1,
@@ -365,7 +366,6 @@ describe('BucketeerProvider', () => {
 
       invalidDefaultValues.forEach(({ label, value, expectedType }) => {
         it(`should return type mismatch error when defaultValue is ${label}`, async () => {
-          await provider.initialize(mockContext);
           const result = await provider.resolveObjectEvaluation(
             'test-feature',
             value,
@@ -383,7 +383,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should handle array vs object type mismatch when expecting object but got array', async () => {
-      await provider.initialize(mockContext);
       mockClient.objectVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -409,7 +408,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should handle array vs object type mismatch when expecting array but got object', async () => {
-      await provider.initialize(mockContext);
       mockClient.objectVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -436,8 +434,11 @@ describe('BucketeerProvider', () => {
   });
 
   describe('utility methods', () => {
-    it('should destroy client on close', async () => {
+    beforeEach(async () => {
       await provider.initialize(mockContext);
+    });
+
+    it('should destroy client on close', async () => {
       await provider.onClose();
       expect(mockClient.destroy).toHaveBeenCalled();
       expect(provider['client']).toBeUndefined();
