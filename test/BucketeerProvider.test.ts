@@ -264,7 +264,7 @@ describe('BucketeerProvider', () => {
       } satisfies BKTEvaluationDetails<BKTValue>);
       const result = await provider.resolveObjectEvaluation(
         'test-feature',
-        [],
+        ['item0'],
         mockContext,
         console,
       );
@@ -348,7 +348,7 @@ describe('BucketeerProvider', () => {
           value: defaultValue,
           reason: StandardResolutionReasons.ERROR,
           errorCode: ErrorCode.TYPE_MISMATCH,
-          errorMessage: 'Expected object but got string',
+          errorMessage: 'Expected array but got string',
         });
       });
     });
@@ -363,6 +363,7 @@ describe('BucketeerProvider', () => {
 
       invalidDefaultValues.forEach(({ label, value, expectedType }) => {
         it(`should return type mismatch error when defaultValue is ${label}`, async () => {
+          await provider.initialize(mockContext);
           const result = await provider.resolveObjectEvaluation(
             'test-feature',
             value,
@@ -373,7 +374,7 @@ describe('BucketeerProvider', () => {
             value: value,
             reason: StandardResolutionReasons.ERROR,
             errorCode: ErrorCode.TYPE_MISMATCH,
-            errorMessage: `Default value must be an object or array but got ${expectedType}`,
+            errorMessage: `Default value must be object but got ${expectedType}`,
           });
         });
       });

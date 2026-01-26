@@ -116,19 +116,20 @@ export class BucketeerProvider implements Provider {
     context: EvaluationContext,
     _logger: Logger,
   ): Promise<ResolutionDetails<T>> {
+    const client = this.requiredBKTClient();
+    const expectedTopLevelType = Array.isArray(defaultValue) ? 'array' : 'object';
     // Early guard: Verify that defaultValue itself is an object or array
     // This enforces the "ONLY supports object types" contract even if the caller
     // attempts to pass a primitive as the default value.
     if (defaultValue === null || typeof defaultValue !== 'object') {
       return wrongTypeResult(
         defaultValue,
-        `Default value must be an object or array but got ${
+        `Default value must be ${expectedTopLevelType} but got ${
           defaultValue === null ? 'null' : typeof defaultValue
         }`,
       );
     }
 
-    const client = this.requiredBKTClient();
     const user = evaluationContextToBKTUser(context);
     const evaluationDetails = await client.objectVariationDetails(user, flagKey, defaultValue);
     const variationValue = evaluationDetails.variationValue;
@@ -150,9 +151,7 @@ export class BucketeerProvider implements Provider {
       if (resultIsJsonArray !== defaultIsJsonArray) {
         return wrongTypeResult(
           defaultValue,
-          `Expected ${defaultIsJsonArray ? 'array' : 'object'} but got ${
-            resultIsJsonArray ? 'array' : 'object'
-          }`,
+          `Expected ${expectedTopLevelType} but got ${resultIsJsonArray ? 'array' : 'object'}`,
         );
       }
 
@@ -164,7 +163,7 @@ export class BucketeerProvider implements Provider {
     // This prevents runtime crashes when users specify a generic <T> that doesn't
     // match the actual value returned by the backend.
     const actualType = variationValue === null ? 'null' : typeof variationValue;
-    return wrongTypeResult(defaultValue, `Expected object but got ${actualType}`);
+    return wrongTypeResult(defaultValue, `Expected ${expectedTopLevelType} but got ${actualType}`);
   }
 
   async initialize(context?: EvaluationContext) {
