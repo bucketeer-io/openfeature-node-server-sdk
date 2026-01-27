@@ -92,7 +92,7 @@ export class BucketeerProvider implements Provider {
    *
    * ⚠️ STRICT TYPE VALIDATION:
    * - This method ONLY supports object types (JSON objects and arrays).
-   * - Primitive types (string, number, boolean) are explicitly rejected to ensure type safety.
+   * - Primitive types (string, number, boolean, null) are explicitly rejected to ensure type safety.
    * - For primitive types, use the corresponding methods on the OpenFeature Client: `getBooleanValue`, `getStringValue`, `getNumberValue`, or their `Details` variants.
    *
    * ⚠️ NESTED TYPE CAVEAT:
