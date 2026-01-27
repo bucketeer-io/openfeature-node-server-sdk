@@ -165,7 +165,7 @@ describe('BucketeerProvider - evaluation', () => {
       }
     });
 
-    // We don’t have a test array flag set up in the Bucketeer test backend yet; we’ll add it when one is available.
+    // We don't have an e2e array flag set up in the Bucketeer test backend yet; we’ll add it when one is available.
     // For now, we test getting array from a plain object flag
     it('should return a default value when trying to get array from a plain object flag', async () => {
       const client = OpenFeature.getClient();
