@@ -148,7 +148,10 @@ describe('BucketeerProvider - evaluation', () => {
           expectedMessage: 'Default value must be an object or array but got string',
         },
         { value: 123, expectedMessage: 'Default value must be an object or array but got number' },
-        { value: true, expectedMessage: 'Default value must be an object or array but got boolean' },
+        {
+          value: true,
+          expectedMessage: 'Default value must be an object or array but got boolean',
+        },
         { value: null, expectedMessage: 'Default value must be an object or array but got null' },
       ];
 
@@ -183,26 +186,18 @@ describe('BucketeerProvider - evaluation', () => {
     test('should return a default value when trying to get object from primitive flags', async () => {
       // The Bucketeer Node.js SDK's objectVariationDetails
       // guarantees it returns an object or array (it returns the default value if the flag type doesn't match)
-      const client = OpenFeature.getClient()
-      const primitiveFlags = [
-        FEATURE_ID_BOOLEAN,
-        FEATURE_ID_INT,
-        FEATURE_ID_STRING,
-      ]
+      const client = OpenFeature.getClient();
+      const primitiveFlags = [FEATURE_ID_BOOLEAN, FEATURE_ID_INT, FEATURE_ID_STRING];
 
       for (const flag of primitiveFlags) {
-        const resultDetails = await client.getObjectDetails(
-          flag,
-          { default: 'fallback' },
-          context,
-        )
+        const resultDetails = await client.getObjectDetails(flag, { default: 'fallback' }, context);
 
-        expect(typeof resultDetails).toBe('object')
-        expect(resultDetails.reason).toBe('CLIENT')
-        expect(resultDetails.errorCode).toBeUndefined()
-        expect(resultDetails.errorMessage).toBeUndefined()
-        expect(resultDetails.value).toEqual({ default: 'fallback' })
+        expect(typeof resultDetails).toBe('object');
+        expect(resultDetails.reason).toBe('CLIENT');
+        expect(resultDetails.errorCode).toBeUndefined();
+        expect(resultDetails.errorMessage).toBeUndefined();
+        expect(resultDetails.value).toEqual({ default: 'fallback' });
       }
-    })
+    });
   });
 });
