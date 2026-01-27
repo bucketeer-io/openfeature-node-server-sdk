@@ -2,6 +2,7 @@ import {
   BucketeerProvider,
   DEFAULT_WAIT_FOR_INITIALIZATION_TIMEOUT_MS,
   SOURCE_ID_OPEN_FEATURE_NODE,
+  wrongTypeResult,
 } from '../src/internal/BucketeerProvider';
 import {
   BKTConfig,
@@ -18,7 +19,8 @@ import {
   ProviderNotReadyError,
   ServerProviderEvents,
   ResolutionDetails,
-  JsonValue,
+  StandardResolutionReasons,
+  ErrorCode,
 } from '@openfeature/server-sdk';
 import { SDK_VERSION } from '../src/internal/version';
 import { InternalConfig } from '@bucketeer/node-server-sdk/lib/internalConfig';
@@ -80,6 +82,10 @@ describe('BucketeerProvider', () => {
 
     (initializeBKTClient as jest.Mock).mockReturnValue(mockClient);
     provider = new BucketeerProvider(userConfig, { initializationTimeoutMs: 5000 });
+  });
+
+  afterEach(async () => {
+    await provider.onClose();
   });
 
   describe('metadata', () => {
@@ -148,8 +154,11 @@ describe('BucketeerProvider', () => {
   });
 
   describe('flag evaluation methods', () => {
-    it('should resolve boolean evaluation', async () => {
+    beforeEach(async () => {
       await provider.initialize(mockContext);
+    });
+
+    it('should resolve boolean evaluation', async () => {
       mockClient.booleanVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -174,7 +183,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve string evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.stringVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -199,7 +207,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve number evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.numberVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -224,7 +231,6 @@ describe('BucketeerProvider', () => {
     });
 
     it('should resolve object evaluation', async () => {
-      await provider.initialize(mockContext);
       mockClient.objectVariationDetails.mockResolvedValue({
         featureId: 'test-feature',
         featureVersion: 1,
@@ -248,36 +254,64 @@ describe('BucketeerProvider', () => {
       } satisfies ResolutionDetails<object>);
     });
 
-    describe('should handle null and primitive in object evaluation', () => {
+    it('should resolve object evaluation with array', async () => {
+      const variationValue = ['item1', 'item2'];
+      mockClient.objectVariationDetails.mockResolvedValue({
+        featureId: 'test-feature',
+        featureVersion: 1,
+        userId: 'test-user',
+        variationId: 'var-id',
+        variationValue: variationValue,
+        variationName: 'array-variant',
+        reason: 'CLIENT',
+      } satisfies BKTEvaluationDetails<BKTValue>);
+      const result = await provider.resolveObjectEvaluation(
+        'test-feature',
+        ['item0'],
+        mockContext,
+        console,
+      );
+      expect(mockClient.objectVariationDetails).toHaveBeenCalled();
+      expect(result).toEqual({
+        value: variationValue,
+        variant: 'array-variant',
+        reason: 'CLIENT',
+      } satisfies ResolutionDetails<object>);
+    });
+
+    describe('should handle type mismatch in object evaluation', () => {
       const typeMismatchTestCases = [
         {
           description: 'string value',
           variationValue: 'not-an-object',
-        },
-        {
-          description: 'null value',
-          variationValue: null,
+          expectedErrorMessage: 'Expected object but got string',
         },
         {
           description: 'number value',
           variationValue: 1.1,
+          expectedErrorMessage: 'Expected object but got number',
         },
         {
           description: 'boolean value',
           variationValue: true,
+          expectedErrorMessage: 'Expected object but got boolean',
+        },
+        {
+          description: 'null value',
+          variationValue: null,
+          expectedErrorMessage: 'Expected object but got null',
         },
       ];
 
-      typeMismatchTestCases.forEach(({ description, variationValue }) => {
+      typeMismatchTestCases.forEach(({ description, variationValue, expectedErrorMessage }) => {
         it(`should handle type mismatch with ${description}`, async () => {
-          await provider.initialize(mockContext);
           mockClient.objectVariationDetails.mockResolvedValue({
             featureId: 'test-feature',
             featureVersion: 1,
             userId: 'test-user',
             variationId: 'var-id',
             variationValue,
-            variationName: 'not an object',
+            variationName: 'wrong-type-variant',
             reason: 'DEFAULT',
           } satisfies BKTEvaluationDetails<BKTValue>);
           const defaultValue = { default: true };
@@ -287,20 +321,124 @@ describe('BucketeerProvider', () => {
             mockContext,
             console,
           );
-          expect(mockClient.objectVariationDetails).toHaveBeenCalled();
           expect(result).toEqual({
-            value: variationValue,
-            variant: 'not an object',
-            reason: 'DEFAULT',
-          } satisfies ResolutionDetails<JsonValue>);
+            value: defaultValue,
+            reason: StandardResolutionReasons.ERROR,
+            errorCode: ErrorCode.TYPE_MISMATCH,
+            errorMessage: expectedErrorMessage,
+          });
         });
+      });
+
+      it('should handle type mismatch with primitive value when defaultValue is array', async () => {
+        mockClient.objectVariationDetails.mockResolvedValue({
+          featureId: 'test-feature',
+          featureVersion: 1,
+          userId: 'test-user',
+          variationId: 'var-id',
+          variationValue: 'not-an-array',
+          variationName: 'wrong-type-variant',
+          reason: 'DEFAULT',
+        } satisfies BKTEvaluationDetails<BKTValue>);
+        const defaultValue = ['item1', 'item2'];
+        const result = await provider.resolveObjectEvaluation(
+          'test-feature',
+          defaultValue,
+          mockContext,
+          console,
+        );
+        expect(result).toEqual({
+          value: defaultValue,
+          reason: StandardResolutionReasons.ERROR,
+          errorCode: ErrorCode.TYPE_MISMATCH,
+          errorMessage: 'Expected array but got string',
+        });
+      });
+    });
+
+    describe('should handle invalid defaultValue in object evaluation', () => {
+      const invalidDefaultValues = [
+        { label: 'string', value: 'primitive', expectedType: 'string' },
+        { label: 'number', value: 123, expectedType: 'number' },
+        { label: 'boolean', value: true, expectedType: 'boolean' },
+        { label: 'null', value: null, expectedType: 'null' },
+      ];
+
+      invalidDefaultValues.forEach(({ label, value, expectedType }) => {
+        it(`should return type mismatch error when defaultValue is ${label}`, async () => {
+          const result = await provider.resolveObjectEvaluation(
+            'test-feature',
+            value,
+            mockContext,
+            console,
+          );
+          expect(result).toEqual({
+            value: value,
+            reason: StandardResolutionReasons.ERROR,
+            errorCode: ErrorCode.TYPE_MISMATCH,
+            errorMessage: `Default value must be an object or array but got ${expectedType}`,
+          });
+        });
+      });
+    });
+
+    it('should handle array vs object type mismatch when expecting object but got array', async () => {
+      mockClient.objectVariationDetails.mockResolvedValue({
+        featureId: 'test-feature',
+        featureVersion: 1,
+        userId: 'test-user',
+        variationId: 'var-id',
+        variationValue: ['item1', 'item2'],
+        variationName: 'array-variant',
+        reason: 'DEFAULT',
+      } satisfies BKTEvaluationDetails<BKTValue>);
+      const defaultValue = { key: 'value' };
+      const result = await provider.resolveObjectEvaluation(
+        'test-feature',
+        defaultValue,
+        mockContext,
+        console,
+      );
+      expect(result).toEqual({
+        value: defaultValue,
+        reason: StandardResolutionReasons.ERROR,
+        errorCode: ErrorCode.TYPE_MISMATCH,
+        errorMessage: 'Expected object but got array',
+      });
+    });
+
+    it('should handle array vs object type mismatch when expecting array but got object', async () => {
+      mockClient.objectVariationDetails.mockResolvedValue({
+        featureId: 'test-feature',
+        featureVersion: 1,
+        userId: 'test-user',
+        variationId: 'var-id',
+        variationValue: { key: 'value' },
+        variationName: 'object-variant',
+        reason: 'DEFAULT',
+      } satisfies BKTEvaluationDetails<BKTValue>);
+      const defaultValue = ['item1', 'item2'];
+      const result = await provider.resolveObjectEvaluation(
+        'test-feature',
+        defaultValue,
+        mockContext,
+        console,
+      );
+      expect(result).toEqual({
+        value: defaultValue,
+        reason: StandardResolutionReasons.ERROR,
+        errorCode: ErrorCode.TYPE_MISMATCH,
+        errorMessage: 'Expected array but got object',
       });
     });
   });
 
   describe('utility methods', () => {
-    it('should destroy client on close', async () => {
+    beforeEach(async () => {
       await provider.initialize(mockContext);
+    });
+
+    it('should destroy client on close', async () => {
       await provider.onClose();
       expect(mockClient.destroy).toHaveBeenCalled();
       expect(provider['client']).toBeUndefined();
@@ -311,6 +449,16 @@ describe('BucketeerProvider', () => {
       const emitSpy = jest.spyOn(provider.events, 'emit');
       expect(() => provider.requiredBKTClient()).toThrow(ProviderNotReadyError);
       expect(emitSpy).toHaveBeenCalledWith(ServerProviderEvents.Error);
+    });
+
+    it('should correctly create wrongTypeResult', () => {
+      const result = wrongTypeResult('default', 'Type error');
+      expect(result).toEqual({
+        value: 'default',
+        reason: StandardResolutionReasons.ERROR,
+        errorCode: ErrorCode.TYPE_MISMATCH,
+        errorMessage: 'Type error',
+      });
     });
   });
 });

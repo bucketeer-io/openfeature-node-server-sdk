@@ -138,4 +138,66 @@ describe('BucketeerProvider - evaluation', () => {
       } satisfies EvaluationDetails<JsonValue>);
     });
   });
+
+  describe('object evaluation - type validation', () => {
+    it('should return error when defaultValue is a primitive (string|number|boolean|null)', async () => {
+      const client = OpenFeature.getClient();
+      const cases = [
+        {
+          value: 'invalid-string-default',
+          expectedMessage: 'Default value must be an object or array but got string',
+        },
+        { value: 123, expectedMessage: 'Default value must be an object or array but got number' },
+        {
+          value: true,
+          expectedMessage: 'Default value must be an object or array but got boolean',
+        },
+        { value: null, expectedMessage: 'Default value must be an object or array but got null' },
+      ];
+
+      for (const c of cases) {
+        const resultDetails = await client.getObjectDetails(FEATURE_ID_JSON, c.value, context);
+        expect(typeof resultDetails).toBe('object');
+        expect(resultDetails.value).toBe(c.value);
+        expect(resultDetails.reason).toBe('ERROR');
+        expect(resultDetails.errorCode).toBe('TYPE_MISMATCH');
+        expect(resultDetails.errorMessage).toContain(c.expectedMessage);
+      }
+    });
+
+    // We don't have an e2e array flag set up in the Bucketeer test backend yet; we’ll add it when one is available.
+    // For now, we test getting array from a plain object flag
+    it('should return a default value when trying to get array from a plain object flag', async () => {
+      const client = OpenFeature.getClient();
+      const arrayDefault = [
+        { id: 1, name: 'item1', tags: ['a', 'b'] },
+        { id: 2, name: 'item2', tags: ['c', 'd'] },
+      ];
+
+      const result = await client.getObjectValue(FEATURE_ID_JSON, arrayDefault, context);
+      expect(Array.isArray(result)).toBe(true);
+
+      const resultDetails = await client.getObjectDetails(FEATURE_ID_JSON, arrayDefault, context);
+      expect(typeof resultDetails).toBe('object');
+      expect(resultDetails.reason).toBe('ERROR');
+      // The expected error message depends on the current implementation behavior for type mismatch
+    });
+
+    test('should return a default value when trying to get object from primitive flags', async () => {
+      // The Bucketeer Node.js SDK's objectVariationDetails
+      // guarantees it returns an object or array (it returns the default value if the flag type doesn't match)
+      const client = OpenFeature.getClient();
+      const primitiveFlags = [FEATURE_ID_BOOLEAN, FEATURE_ID_INT, FEATURE_ID_STRING];
+
+      for (const flag of primitiveFlags) {
+        const resultDetails = await client.getObjectDetails(flag, { default: 'fallback' }, context);
+
+        expect(typeof resultDetails).toBe('object');
+        expect(resultDetails.reason).toBe('CLIENT');
+        expect(resultDetails.errorCode).toBeUndefined();
+        expect(resultDetails.errorMessage).toBeUndefined();
+        expect(resultDetails.value).toEqual({ default: 'fallback' });
+      }
+    });
+  });
 });
