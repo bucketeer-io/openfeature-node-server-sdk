@@ -1,6 +1,7 @@
 import {
   ErrorCode,
   EvaluationContext,
+  GeneralError,
   Hook,
   InvalidContextError,
   JsonValue,
@@ -192,14 +193,19 @@ export class BucketeerProvider implements Provider {
   }
 
   async onClose() {
-    // Re-initializing a provider after/while closing is not a supported flow, so we
-    // don't guard against a concurrent initialize() replacing the client here.
+    // Detach the client before awaiting teardown so the provider becomes
+    // unavailable immediately: a concurrent requiredBKTClient() during shutdown
+    // fails fast instead of using a client that's mid-destroy. Detaching first
+    // also guarantees a rejecting destroy() can't leave a stale, already-destroyed
+    // client referenced.
+    const client = this.client;
+    this.client = undefined;
     try {
-      await this.client?.destroy();
-    } finally {
-      // Clear the reference even if destroy() rejects (e.g. shutdown timeout), so a
-      // stale, already-destroyed client can't leak out through requiredBKTClient().
-      this.client = undefined;
+      await client?.destroy();
+    } catch (error) {
+      throw new GeneralError(`Failed to close Bucketeer client: ${error}`, {
+        cause: error,
+      });
     }
   }
 

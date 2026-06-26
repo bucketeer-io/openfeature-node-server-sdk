@@ -14,6 +14,7 @@ import {
 } from '@bucketeer/node-server-sdk';
 import {
   EvaluationContext,
+  GeneralError,
   InvalidContextError,
   ProviderFatalError,
   ProviderNotReadyError,
@@ -444,13 +445,16 @@ describe('BucketeerProvider', () => {
       expect(provider['client']).toBeUndefined();
     });
 
-    it('should clear the client even if destroy() rejects', async () => {
+    it('should clear the client and wrap the error if destroy() rejects', async () => {
       const timeoutError = new Error('shutdown timed out');
       timeoutError.name = 'TimeoutError';
       mockClient.destroy.mockRejectedValueOnce(timeoutError);
 
-      await expect(provider.onClose()).rejects.toBe(timeoutError);
-      // The finally block must still clear the stale, destroyed client.
+      const closePromise = provider.onClose();
+      await expect(closePromise).rejects.toBeInstanceOf(GeneralError);
+      await expect(closePromise).rejects.toHaveProperty('cause', timeoutError);
+
+      // The reference is detached even though destroy() rejected.
       expect(provider['client']).toBeUndefined();
       expect(() => provider.requiredBKTClient()).toThrow(ProviderNotReadyError);
     });
