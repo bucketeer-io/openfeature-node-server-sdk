@@ -192,7 +192,7 @@ export class BucketeerProvider implements Provider {
   }
 
   async onClose() {
-    this.client?.destroy();
+    await this.client?.destroy();
     this.client = undefined;
   }
 
