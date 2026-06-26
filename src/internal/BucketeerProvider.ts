@@ -192,8 +192,15 @@ export class BucketeerProvider implements Provider {
   }
 
   async onClose() {
-    await this.client?.destroy();
-    this.client = undefined;
+    // Re-initializing a provider after/while closing is not a supported flow, so we
+    // don't guard against a concurrent initialize() replacing the client here.
+    try {
+      await this.client?.destroy();
+    } finally {
+      // Clear the reference even if destroy() rejects (e.g. shutdown timeout), so a
+      // stale, already-destroyed client can't leak out through requiredBKTClient().
+      this.client = undefined;
+    }
   }
 
   requiredBKTClient(): Bucketeer {

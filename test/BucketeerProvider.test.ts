@@ -67,7 +67,7 @@ describe('BucketeerProvider', () => {
       numberVariationDetails: jest.fn(),
       objectVariationDetails: jest.fn(),
       waitForInitialization: jest.fn(),
-      destroy: jest.fn(),
+      destroy: jest.fn().mockResolvedValue(undefined),
       getBoolVariation: jest.fn(),
       getStringVariation: jest.fn(),
       getNumberVariation: jest.fn(),
@@ -442,6 +442,17 @@ describe('BucketeerProvider', () => {
       await provider.onClose();
       expect(mockClient.destroy).toHaveBeenCalled();
       expect(provider['client']).toBeUndefined();
+    });
+
+    it('should clear the client even if destroy() rejects', async () => {
+      const timeoutError = new Error('shutdown timed out');
+      timeoutError.name = 'TimeoutError';
+      mockClient.destroy.mockRejectedValueOnce(timeoutError);
+
+      await expect(provider.onClose()).rejects.toBe(timeoutError);
+      // The finally block must still clear the stale, destroyed client.
+      expect(provider['client']).toBeUndefined();
+      expect(() => provider.requiredBKTClient()).toThrow(ProviderNotReadyError);
     });
 
     it('should throw ProviderNotReadyError if BKTClient is not initialized', () => {
