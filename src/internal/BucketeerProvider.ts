@@ -187,7 +187,7 @@ export class BucketeerProvider implements Provider {
         this.events.emit(ServerProviderEvents.Ready);
       } else {
         this.events.emit(ServerProviderEvents.Error);
-        throw new ProviderFatalError(`Failed to initialize Bucketeer client: ${error}`);
+        throw new ProviderFatalError(`Failed to initialize Bucketeer client: ${String(error)}`);
       }
     }
   }
@@ -203,7 +203,7 @@ export class BucketeerProvider implements Provider {
     try {
       await client?.destroy();
     } catch (error) {
-      throw new GeneralError(`Failed to close Bucketeer client: ${error}`, {
+      throw new GeneralError(`Failed to close Bucketeer client: ${String(error)}`, {
         cause: error,
       });
     }
