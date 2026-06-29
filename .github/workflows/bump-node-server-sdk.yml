@@ -1,0 +1,88 @@
+name: Bump Node Server SDK
+
+# Triggered automatically after a new @bucketeer/node-server-sdk version is
+# published to npm (dispatched from node-server-sdk's publish workflow),
+# or manually from the GitHub Actions UI.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '@bucketeer/node-server-sdk version to bump to (e.g. 0.5.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+
+      - name: Resolve version
+        id: ctx
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ -z "$VERSION" ]]; then
+            echo "No version provided." >&2
+            exit 1
+          fi
+          VERSION="${VERSION#v}"   # strip leading 'v' if present
+          BRANCH="deps/bump-node-server-sdk-v${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Check branch does not already exist
+        id: check
+        env:
+          BRANCH: ${{ steps.ctx.outputs.branch }}
+        run: |
+          if git ls-remote --heads origin "$BRANCH" | grep -q .; then
+            echo "Branch $BRANCH already exists — skipping (already bumped?)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump package.json and update lockfile
+        if: steps.check.outputs.skip != 'true'
+        env:
+          VERSION: ${{ steps.ctx.outputs.version }}
+        run: yarn add @bucketeer/node-server-sdk@^${VERSION} --dev
+
+      - name: Commit and push
+        if: steps.check.outputs.skip != 'true'
+        env:
+          VERSION: ${{ steps.ctx.outputs.version }}
+          BRANCH: ${{ steps.ctx.outputs.branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add package.json yarn.lock
+          git commit -m "build(deps): bump @bucketeer/node-server-sdk to v${VERSION}"
+          git push origin "$BRANCH"
+
+      - name: Create PR and enable auto-merge
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.ctx.outputs.version }}
+          BRANCH: ${{ steps.ctx.outputs.branch }}
+        run: |
+          PR_URL=$(gh pr create \
+            --title "build(deps): bump @bucketeer/node-server-sdk to v${VERSION}" \
+            --body "Automated dependency bump triggered by the release of [@bucketeer/node-server-sdk v${VERSION}](https://github.com/bucketeer-io/node-server-sdk/releases/tag/v${VERSION}).
+
+          _This PR was created automatically. It will merge once all required checks pass._" \
+            --base main \
+            --head "$BRANCH")
+          gh pr merge "$PR_URL" --auto --squash
