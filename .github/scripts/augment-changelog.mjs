@@ -294,8 +294,18 @@ async function main() {
     try {
       oldVersion = await readVersion(native.versionFile, native.versionRegex, baseRef);
     } catch (err) {
-      console.warn(`[${native.name}] could not read base version, skipping: ${err.message}`);
-      continue;
+      if (native.versionRegexFallback) {
+        try {
+          oldVersion = await readVersion(native.versionFile, native.versionRegexFallback, baseRef);
+          console.log(`[${native.name}] base version read via fallback regex: ${oldVersion}`);
+        } catch {
+          console.warn(`[${native.name}] could not read base version (primary or fallback), skipping: ${err.message}`);
+          continue;
+        }
+      } else {
+        console.warn(`[${native.name}] could not read base version, skipping: ${err.message}`);
+        continue;
+      }
     }
 
     if (compareSemver(newVersion, oldVersion) <= 0) {
