@@ -7,7 +7,8 @@
       "shortName": "node-server-sdk",
       "repo": "bucketeer-io/node-server-sdk",
       "versionFile": "package.json",
-      "versionRegex": "\"devDependencies\"[\\s\\S]*?\"@bucketeer/node-server-sdk\":\\s*\"\\^?([0-9][^\"]*)\""
+      "versionRegex": "\"devDependencies\"[\\s\\S]*?\"@bucketeer/node-server-sdk\":\\s*\"\\^?([0-9][^\"]*)",
+      "versionRegexFallback": "\"devDependencies\"[\\s\\S]*?\"bkt-node-server-sdk\":\\s*\"\\^?([0-9][^\"]*)\""
     }
   ],
   "skipPatterns": [
