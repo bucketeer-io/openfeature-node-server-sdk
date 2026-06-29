@@ -10,12 +10,12 @@ export default [
   ...tsEslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
-    files: ['src/**/*.ts', 'test/**/*.ts'],
+    files: ['src/**/*.ts', 'test/**/*.ts', 'e2e/**/*.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         sourceType: 'module',
-        project: [`tsconfig.json`, `tsconfig.test.json`],
+        project: [`tsconfig.json`, `test/tsconfig.json`, `e2e/tsconfig.json`],
       },
       globals: {
         node: true,
