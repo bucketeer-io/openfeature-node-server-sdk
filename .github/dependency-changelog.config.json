@@ -1,0 +1,25 @@
+{
+  "sectionTitle": "Node Server SDK Changes",
+  "sectionIntro": "This release also brings the following changes from the underlying Node.js server SDK.",
+  "dependencies": [
+    {
+      "name": "Node Server SDK",
+      "shortName": "node-server-sdk",
+      "repo": "bucketeer-io/node-server-sdk",
+      "versionFile": "package.json",
+      "versionRegex": "\"devDependencies\"[\\s\\S]*?\"@bucketeer/node-server-sdk\":\\s*\"\\^?([0-9][^\"]*)\""
+    }
+  ],
+  "skipPatterns": [
+    "^\\*\\*deps:\\*\\*\\s+update\\s+all\\s+non-major\\s+dependencies"
+  ],
+  "sectionOrder": [
+    "Features",
+    "Bug Fixes",
+    "Performance Improvements",
+    "Reverts",
+    "Refactoring",
+    "Miscellaneous",
+    "Build System"
+  ]
+}
