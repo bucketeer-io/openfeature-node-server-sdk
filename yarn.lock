@@ -270,12 +270,11 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@bucketeer/evaluation@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@bucketeer/evaluation/-/evaluation-0.0.7.tgz#40cc0a9c55dad5e340d3730ffa3efd4022bb44ca"
-  integrity sha512-S18IoJ0Dg9lKUDjqX5M55CupmWAXD62Pyhl0ACTjHuH4PrPl44fgL1BGaIuPhirJsG/LdWRuTP03Jkwmq5X/GA==
+"@bucketeer/evaluation@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@bucketeer/evaluation/-/evaluation-0.0.8.tgz#847f3a20a4fd3c51df95430c76e84194dcaa818b"
+  integrity sha512-7103CiZiMw3s8j4Sepd/kPPUIfw3cwx32omDVsX1PZwA/keO4XejPb9q+Nq8o2ymWBalZbgIWf8X5o/6wzEuqA==
   dependencies:
-    "@improbable-eng/grpc-web" "^0.15.0"
     "@types/fnv-plus" "^1.3.2"
     "@types/google-protobuf" "^3.15.12"
     "@types/murmurhash3js" "^3.0.7"
@@ -285,15 +284,12 @@
     js-yaml "^4.1.0"
     murmurhash3js "^3.0.1"
 
-"@bucketeer/node-server-sdk@^0.4.5":
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/@bucketeer/node-server-sdk/-/node-server-sdk-0.4.5.tgz#212645995533ba117ab2d658ad0843b22004d6ed"
-  integrity sha512-NeSrI4XxL3wAmT4U+RfOK7gR5b4tHlxIIk88WSq95Pm9ltbChy+3E58OXkYNeConT5hQ+8zLkEI5+WWJDBkbRA==
+"@bucketeer/node-server-sdk@^0.4.6":
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/@bucketeer/node-server-sdk/-/node-server-sdk-0.4.6.tgz#0918f730302c590d26bb461164608e820d244e67"
+  integrity sha512-fPlrAqENsy9WFBFD7ZHIhB2ZJnoMeIBQaeLTb1aQYeEiioSvEpC67Fe/jz64+lb3wBpzaFHG/iyDBtvsBmtFOw==
   dependencies:
-    "@bucketeer/evaluation" "0.0.7"
-    "@improbable-eng/grpc-web" "^0.15.0"
-    "@improbable-eng/grpc-web-node-http-transport" "^0.15.0"
-    google-protobuf "^3.21.4"
+    "@bucketeer/evaluation" "0.0.8"
     uuid "^11.1.0"
 
 "@esbuild/aix-ppc64@0.23.1":
@@ -478,18 +474,6 @@
   version "0.3.0"
   resolved "https://registry.npmjs.org/@humanwhocodes/retry/-/retry-0.3.0.tgz"
   integrity sha512-d2CGZR2o7fS6sWB7DG/3a95bGKQyHMACZ5aW8qGkkqQpUoZV6C0X7Pc7l4ZNMZkfNBf4VWNe9E1jRsf0G146Ew==
-
-"@improbable-eng/grpc-web-node-http-transport@^0.15.0":
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/@improbable-eng/grpc-web-node-http-transport/-/grpc-web-node-http-transport-0.15.0.tgz#5a064472ef43489cbd075a91fb831c2abeb09d68"
-  integrity sha512-HLgJfVolGGpjc9DWPhmMmXJx8YGzkek7jcCFO1YYkSOoO81MWRZentPOd/JiKiZuU08wtc4BG+WNuGzsQB5jZA==
-
-"@improbable-eng/grpc-web@^0.15.0":
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/@improbable-eng/grpc-web/-/grpc-web-0.15.0.tgz#3e47e9fdd90381a74abd4b7d26e67422a2a04bef"
-  integrity sha512-ERft9/0/8CmYalqOVnJnpdDry28q+j+nAlFFARdjyxXDJ+Mhgv9+F600QC8BR9ygOfrXRlAk6CvST2j+JCpQPg==
-  dependencies:
-    browser-headers "^0.4.1"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -1240,11 +1224,6 @@ braces@^3.0.3:
   dependencies:
     fill-range "^7.1.1"
 
-browser-headers@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/browser-headers/-/browser-headers-0.4.1.tgz#4308a7ad3b240f4203dbb45acedb38dc2d65dd02"
-  integrity sha512-CA9hsySZVo9371qEHjHZtYxV2cFtVj5Wj/ZHi8ooEsrtm4vOnl9Y9HmyYWk9q+05d7K3rdoAE0j3MVEFVvtQtg==
-
 browserslist@^4.24.0:
   version "4.25.4"
   resolved "https://registry.npmjs.org/browserslist/-/browserslist-4.25.4.tgz"
@@ -1810,11 +1789,6 @@ google-protobuf@3.14.0:
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.14.0.tgz#20373d22046e63831a5110e11a84f713cc43651e"
   integrity sha512-bwa8dBuMpOxg7COyqkW6muQuvNnWgVN8TX/epDRGW5m0jcrmq2QJyCyiV8ZE2/6LaIIqJtiv9bYokFhfpy/o6w==
-
-google-protobuf@^3.21.4:
-  version "3.21.4"
-  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.21.4.tgz#2f933e8b6e5e9f8edde66b7be0024b68f77da6c9"
-  integrity sha512-MnG7N936zcKTco4Jd2PX2U96Kf9PxygAPKBug+74LHzmHXmceN16MmRcdgZv+DGef/S9YvQAfRsNCn4cjf9yyQ==
 
 graceful-fs@^4.2.9:
   version "4.2.11"
