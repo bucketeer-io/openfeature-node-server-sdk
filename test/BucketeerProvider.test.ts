@@ -14,6 +14,7 @@ import {
 } from '@bucketeer/node-server-sdk';
 import {
   EvaluationContext,
+  GeneralError,
   InvalidContextError,
   ProviderFatalError,
   ProviderNotReadyError,
@@ -67,7 +68,7 @@ describe('BucketeerProvider', () => {
       numberVariationDetails: jest.fn(),
       objectVariationDetails: jest.fn(),
       waitForInitialization: jest.fn(),
-      destroy: jest.fn(),
+      destroy: jest.fn().mockResolvedValue(undefined),
       getBoolVariation: jest.fn(),
       getStringVariation: jest.fn(),
       getNumberVariation: jest.fn(),
@@ -442,6 +443,20 @@ describe('BucketeerProvider', () => {
       await provider.onClose();
       expect(mockClient.destroy).toHaveBeenCalled();
       expect(provider['client']).toBeUndefined();
+    });
+
+    it('should clear the client and wrap the error if destroy() rejects', async () => {
+      const timeoutError = new Error('shutdown timed out');
+      timeoutError.name = 'TimeoutError';
+      mockClient.destroy.mockRejectedValueOnce(timeoutError);
+
+      const closePromise = provider.onClose();
+      await expect(closePromise).rejects.toBeInstanceOf(GeneralError);
+      await expect(closePromise).rejects.toHaveProperty('cause', timeoutError);
+
+      // The reference is detached even though destroy() rejected.
+      expect(provider['client']).toBeUndefined();
+      expect(() => provider.requiredBKTClient()).toThrow(ProviderNotReadyError);
     });
 
     it('should throw ProviderNotReadyError if BKTClient is not initialized', () => {

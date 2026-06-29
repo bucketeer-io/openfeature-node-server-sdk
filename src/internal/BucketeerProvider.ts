@@ -1,6 +1,7 @@
 import {
   ErrorCode,
   EvaluationContext,
+  GeneralError,
   Hook,
   InvalidContextError,
   JsonValue,
@@ -186,14 +187,26 @@ export class BucketeerProvider implements Provider {
         this.events.emit(ServerProviderEvents.Ready);
       } else {
         this.events.emit(ServerProviderEvents.Error);
-        throw new ProviderFatalError(`Failed to initialize Bucketeer client: ${error}`);
+        throw new ProviderFatalError(`Failed to initialize Bucketeer client: ${String(error)}`);
       }
     }
   }
 
   async onClose() {
-    this.client?.destroy();
+    // Detach the client before awaiting teardown so the provider becomes
+    // unavailable immediately: a concurrent requiredBKTClient() during shutdown
+    // fails fast instead of using a client that's mid-destroy. Detaching first
+    // also guarantees a rejecting destroy() can't leave a stale, already-destroyed
+    // client referenced.
+    const client = this.client;
     this.client = undefined;
+    try {
+      await client?.destroy();
+    } catch (error) {
+      throw new GeneralError(`Failed to close Bucketeer client: ${String(error)}`, {
+        cause: error,
+      });
+    }
   }
 
   requiredBKTClient(): Bucketeer {
