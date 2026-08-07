@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [0.0.3](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.2...v0.0.3) (2026-08-07)
+
+
+### Build System
+
+* **deps:** bump @bucketeer/node-server-sdk to v0.4.7 ([#25](https://github.com/bucketeer-io/openfeature-node-server-sdk/issues/25)) ([05b9675](https://github.com/bucketeer-io/openfeature-node-server-sdk/commit/05b96759f10a09b7ec62607c87d87841b2701b29))
+
 ## [0.0.2](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.1...v0.0.2) (2026-06-29)
 
 
