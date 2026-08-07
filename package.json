@@ -24,14 +24,14 @@
     "build": "yarn lint && tsc"
   },
   "peerDependencies": {
-    "@openfeature/server-sdk": "^1.19.0",
-    "@bucketeer/node-server-sdk": "^0.4.5"
+    "@bucketeer/node-server-sdk": "^0.4.5",
+    "@openfeature/server-sdk": "^1.19.0"
   },
   "devDependencies": {
+    "@bucketeer/node-server-sdk": "^0.4.7",
+    "@eslint/js": "^9.8.0",
     "@openfeature/core": "^1.9.0",
     "@openfeature/server-sdk": "^1.19.0",
-    "@bucketeer/node-server-sdk": "^0.4.6",
-    "@eslint/js": "^9.8.0",
     "@types/eslint": "^9.6.0",
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.14",
