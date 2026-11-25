@@ -1,12 +1,12 @@
 # Changelog
 
 
-## [0.0.3](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.2...v0.0.3) (2026-08-07)
+## [0.0.4](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.3...v0.0.4) (2026-11-25)
 
 
 ### Build System
 
-* **deps:** bump @bucketeer/node-server-sdk to v0.4.7 ([#25](https://github.com/bucketeer-io/openfeature-node-server-sdk/issues/25)) ([05b9675](https://github.com/bucketeer-io/openfeature-node-server-sdk/commit/05b96759f10a09b7ec62607c87d87841b2701b29))
+* **deps:** bump @bucketeer/node-server-sdk to v0.4.8 ([#27](https://github.com/bucketeer-io/openfeature-node-server-sdk/issues/27)) ([7c7dc8a](https://github.com/bucketeer-io/openfeature-node-server-sdk/commit/7c7dc8a9104ae1c1b7abcdff6bf477a8750e0e67))
 
 <!-- dependency-changes:start -->
 
@@ -14,21 +14,25 @@
 
 This release also brings the following changes from the underlying Node.js server SDK.
 
-#### Node Server SDK ([v0.4.6...v0.4.7](https://github.com/bucketeer-io/node-server-sdk/compare/v0.4.6...v0.4.7))
+#### Node Server SDK ([v0.4.7...v0.4.8](https://github.com/bucketeer-io/node-server-sdk/compare/v0.4.7...v0.4.8))
 
 ##### Features
 
-* support rule-based segments in local evaluation ([node-server-sdk#225](https://github.com/bucketeer-io/node-server-sdk/issues/225))
+* support holdout groups in local evaluation ([node-server-sdk#229](https://github.com/bucketeer-io/node-server-sdk/issues/229))
 
 ##### Build System
 
-* **dev-deps:** bump dev-minor ([node-server-sdk#224](https://github.com/bucketeer-io/node-server-sdk/issues/224))
-* **dev-deps:** bump dev-patch ([node-server-sdk#220](https://github.com/bucketeer-io/node-server-sdk/issues/220))
-* **dev-deps:** bump dev-patch group to v7.29.6 [SECURITY] ([node-server-sdk#217](https://github.com/bucketeer-io/node-server-sdk/issues/217))
-* **dev-deps:** bump dev-patch group to v9.39.5 ([node-server-sdk#223](https://github.com/bucketeer-io/node-server-sdk/issues/223))
+* **dev-deps:** bump dev-minor ([node-server-sdk#226](https://github.com/bucketeer-io/node-server-sdk/issues/226))
+* **dev-deps:** bump Node.js to v18.20.8 ([node-server-sdk#227](https://github.com/bucketeer-io/node-server-sdk/issues/227))
 
 <!-- dependency-changes:end -->
 
+## [0.0.3](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.2...v0.0.3) (2026-08-07)
+
+
+### Build System
+
+* **deps:** bump @bucketeer/node-server-sdk to v0.4.7 ([#25](https://github.com/bucketeer-io/openfeature-node-server-sdk/issues/25)) ([05b9675](https://github.com/bucketeer-io/openfeature-node-server-sdk/commit/05b96759f10a09b7ec62607c87d87841b2701b29))
 ## [0.0.2](https://github.com/bucketeer-io/openfeature-node-server-sdk/compare/v0.0.1...v0.0.2) (2026-06-29)
 
 
