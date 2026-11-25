@@ -28,7 +28,7 @@
     "@openfeature/server-sdk": "^1.19.0"
   },
   "devDependencies": {
-    "@bucketeer/node-server-sdk": "^0.4.7",
+    "@bucketeer/node-server-sdk": "^0.4.8",
     "@eslint/js": "^9.8.0",
     "@openfeature/core": "^1.9.0",
     "@openfeature/server-sdk": "^1.19.0",
